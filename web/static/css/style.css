@@ -219,6 +219,72 @@ h1 {
     gap: 1.5rem;
 }
 
+.game-status-indicator {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.turn-icon {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chess-piece {
+    font-size: 28px;
+    line-height: 1;
+    transition: all 0.3s;
+    position: absolute;
+}
+
+.chess-piece.white-piece {
+    color: #ffffff;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.chess-piece.black-piece {
+    color: #1e293b;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.chess-piece.hidden {
+    display: none;
+}
+
+.status-badge.running .chess-piece {
+    animation: pulse-piece 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-piece {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
 .info-banner {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #92400e;
@@ -249,6 +315,19 @@ h1 {
 
 .player-config {
     margin-bottom: 1.25rem;
+}
+
+.opponent-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+    color: #065f46;
+    font-weight: 600;
 }
 
 .player-header {
@@ -324,6 +403,13 @@ h1 {
     font-size: 1rem;
     font-weight: 600;
     text-align: center;
+    transition: all 0.2s;
+}
+
+.depth-input:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
 }
 
 .depth-input:focus {

@@ -40,15 +40,27 @@
 
             <div class="controls-section">
 
+                <div class="game-status-indicator">
+                    <div class="status-badge" id="gameStatusBadge">
+                        <div class="turn-icon" id="turnIcon">
+                            <div class="chess-piece white-piece">♔</div>
+                            <div class="chess-piece black-piece hidden">♚</div>
+                        </div>
+                        <span id="gameStatusText">Siap Dimulai</span>
+                    </div>
+                </div>
+
                 <div class="config-section">
-                    <h3>Konfigurasi Algoritma</h3>
+                    <h3>Konfigurasi Permainan</h3>
                     
                     <div class="player-config">
                         <div class="player-header">
-                            <div class="player-icon white"></div>
-                            <span>Pemain Putih</span>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" fill="#4a90e2"/>
+                            </svg>
+                            <span>Pilih Algoritma</span>
                         </div>
-                        <select id="whiteAlgorithm" class="algorithm-select">
+                        <select id="algorithmSelect" class="algorithm-select">
                             <option value="minimax">Minimax (Evaluasi Statis)</option>
                             <option value="hybrid">Hybrid (Monte Carlo)</option>
                         </select>
@@ -56,13 +68,21 @@
 
                     <div class="player-config">
                         <div class="player-header">
-                            <div class="player-icon black"></div>
-                            <span>Pemain Hitam</span>
+                            <div class="player-icon white"></div>
+                            <span>Warna Algoritma</span>
                         </div>
-                        <select id="blackAlgorithm" class="algorithm-select">
-                            <option value="minimax">Minimax (Evaluasi Statis)</option>
-                            <option value="hybrid">Hybrid (Monte Carlo)</option>
+                        <select id="colorSelect" class="algorithm-select">
+                            <option value="white">Putih (Bergerak Pertama)</option>
+                            <option value="black">Hitam (Bergerak Kedua)</option>
                         </select>
+                    </div>
+
+                    <div class="opponent-info">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#10b981"/>
+                            <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#10b981"/>
+                        </svg>
+                        <span><strong>Lawan:</strong> Stockfish Engine</span>
                     </div>
 
                     <div class="depth-config">
