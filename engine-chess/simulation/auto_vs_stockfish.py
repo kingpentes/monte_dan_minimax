@@ -41,7 +41,7 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
         else:
             # Use simple engine for Stockfish
             # Note: User must provide valid path.
-            transport, stockfish = chess.engine.SimpleEngine.popen_uci(stockfish_path)
+            stockfish = chess.engine.SimpleEngine.popen_uci(stockfish_path)
     except FileNotFoundError:
         print(f"Stockfish not found at {stockfish_path}")
         return None
