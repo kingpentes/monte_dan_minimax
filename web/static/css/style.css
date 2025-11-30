@@ -1,8 +1,51 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+#root, #__next {
+  isolation: isolate;
+}
+
 :root {
-    --primary-color: #4a90e2;
-    --bg-color: #f5f7fa;
+    --primary-color: #0077ff;
+    --bg-color: #d1d1d1;
     --text-color: #333;
-    --board-border: #ccc;
+    --board-border: #b6b6b6;
 }
 
 body {
@@ -23,6 +66,9 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     max-width: 800px;
     width: 100%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--board-border);
 }
 
 header {
@@ -39,7 +85,7 @@ h1 {
     display: flex;
     gap: 2rem;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: center;    
 }
 
 .controls {

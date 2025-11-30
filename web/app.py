@@ -28,11 +28,26 @@ def move():
 
     use_mc = (mode == 'hybrid')
     
+    # Optimize parameters for Hybrid mode to prevent timeout
+    if use_mc:
+        # Cap depth at 2 for Hybrid mode because MC is slow
+        depth = min(depth, 2)
+        # Reduce rollouts for real-time demo
+        rollout_count = 10
+    else:
+        rollout_count = 30
+
     # Run engine
-    best_move = select_best_move(board, depth=depth, use_mc=use_mc, rollout_count=30)
+    best_move = select_best_move(board, depth=depth, use_mc=use_mc, rollout_count=rollout_count)
     
     if best_move:
-        return jsonify({'move': best_move.uci(), 'from': best_move.uci()[:2], 'to': best_move.uci()[2:]})
+        uci = best_move.uci()
+        return jsonify({
+            'move': uci, 
+            'from': uci[:2], 
+            'to': uci[2:4],
+            'promotion': uci[4:] if len(uci) > 4 else None
+        })
     else:
         return jsonify({'error': 'No move found'})
 
