@@ -1,53 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess AI - Minimax vs Hybrid</title>
+    <title>Simulasi Engine Catur - Minimax vs Monte Carlo</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Chess Engine Battle</h1>
-            <p>Test your skills against our AI</p>
+            <h1>Simulasi Engine Catur</h1>
+            <p class="subtitle">Perbandingan Algoritma Minimax vs Monte Carlo</p>
+            <div class="project-info">
+                <p class="project-title">Tugas Besar Pengantar Kecerdasan Artifisial</p>
+                <p class="project-desc">Implementasi dan Perbandingan Dua Algoritma Pencarian Langkah dalam Engine Catur</p>
+                <p class="credit">Kelompok 9 - Kelas PKA C</p>
+            </div>
         </header>
 
         <div class="main-content">
-            <div id="board" style="width: 400px"></div>
+            <div class="board-section">
+                <div class="board-wrapper">
+                    <div id="board"></div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-indicator"></div>
+                        <span id="status">Siap untuk memulai</span>
+                    </div>
+                    <div id="thinking" class="thinking-indicator hidden">
+                        <div class="spinner"></div>
+                        <span>AI sedang berpikir...</span>
+                    </div>
+                </div>
+            </div>
 
-            <div class="controls">
-                <div class="control-group">
-                    <label for="whiteAlgorithm">White Player:</label>
-                    <select id="whiteAlgorithm">
-                        <option value="minimax">Minimax (Static Eval)</option>
-                        <option value="hybrid">Hybrid (Monte Carlo)</option>
-                    </select>
+            <div class="controls-section">
+
+                <div class="config-section">
+                    <h3>Konfigurasi Algoritma</h3>
+                    
+                    <div class="player-config">
+                        <div class="player-header">
+                            <div class="player-icon white"></div>
+                            <span>Pemain Putih</span>
+                        </div>
+                        <select id="whiteAlgorithm" class="algorithm-select">
+                            <option value="minimax">Minimax (Evaluasi Statis)</option>
+                            <option value="hybrid">Hybrid (Monte Carlo)</option>
+                        </select>
+                    </div>
+
+                    <div class="player-config">
+                        <div class="player-header">
+                            <div class="player-icon black"></div>
+                            <span>Pemain Hitam</span>
+                        </div>
+                        <select id="blackAlgorithm" class="algorithm-select">
+                            <option value="minimax">Minimax (Evaluasi Statis)</option>
+                            <option value="hybrid">Hybrid (Monte Carlo)</option>
+                        </select>
+                    </div>
+
+                    <div class="depth-config">
+                        <label for="depth">Kedalaman Pencarian</label>
+                        <div class="depth-input-wrapper">
+                            <input type="number" id="depth" class="depth-input" value="3" min="1" max="30">
+                            <span class="depth-hint">Lebih Tinggi = Lebih Lambat tapi Lebih Pintar</span>
+                        </div>
+                    </div>
+
+                    <div class="depth-config">
+                        <label for="rollout">Jumlah Rollout (Monte Carlo)</label>
+                        <div class="depth-input-wrapper">
+                            <input type="number" id="rollout" class="depth-input" value="10" min="5" max="100">
+                            <span class="depth-hint">Untuk mode Hybrid saja</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="control-group">
-                    <label for="blackAlgorithm">Black Player:</label>
-                    <select id="blackAlgorithm">
-                        <option value="minimax">Minimax (Static Eval)</option>
-                        <option value="hybrid">Hybrid (Monte Carlo)</option>
-                    </select>
+                <div class="action-buttons">
+                    <button id="startGameBtn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 2L13 8L3 14V2Z" fill="currentColor"/>
+                        </svg>
+                        Mulai Simulasi
+                    </button>
+                    <button id="newGameBtn" class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z" fill="currentColor"/>
+                        </svg>
+                        Reset Permainan
+                    </button>
                 </div>
 
-                <div class="control-group">
-                    <label for="depth">Search Depth:</label>
-                    <input type="number" id="depth" value="3" min="1" max="5">
+                <div class="algorithm-info">
+                    <h4>Keterangan:</h4>
+                    <div class="info-item">
+                        <strong>Minimax:</strong> Pencarian pohon permainan klasik dengan alpha-beta pruning
+                    </div>
+                    <div class="info-item">
+                        <strong>Hybrid:</strong> Minimax yang ditingkatkan dengan simulasi Monte Carlo
+                    </div>
                 </div>
-
-                <div class="status-panel">
-                    <h3>Status</h3>
-                    <div id="status">White to move</div>
-                    <div id="thinking" class="hidden">AI is thinking...</div>
-                </div>
-
-                <button id="newGameBtn" class="btn-secondary">New Game</button>
-                <button id="startGameBtn" class="btn-primary">Start Game</button>
             </div>
         </div>
     </div>

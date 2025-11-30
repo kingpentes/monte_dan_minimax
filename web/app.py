@@ -20,6 +20,7 @@ def move():
     fen = data.get('fen')
     depth = int(data.get('depth', 3))
     mode = data.get('mode', 'minimax')
+    rollout = int(data.get('rollout', 10))
     
     board = chess.Board(fen)
     
@@ -32,8 +33,8 @@ def move():
     if use_mc:
         # Cap depth at 2 for Hybrid mode because MC is slow
         depth = min(depth, 2)
-        # Reduce rollouts for real-time demo
-        rollout_count = 10
+        # Use rollout from user input
+        rollout_count = rollout
     else:
         rollout_count = 30
 
