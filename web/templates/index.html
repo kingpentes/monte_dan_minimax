@@ -25,11 +25,14 @@
                 <div class="board-wrapper">
                     <div id="board"></div>
                 </div>
-                
+
                 <div class="status-card">
-                    <div class="status-header">
-                        <div class="status-indicator"></div>
-                        <span id="status">Siap untuk memulai</span>
+                    <div class="status-badge" id="gameStatusBadge">
+                        <div class="turn-icon" id="turnIcon">
+                            <div class="chess-piece white-piece">♔</div>
+                            <div class="chess-piece black-piece hidden">♚</div>
+                        </div>
+                        <span id="gameStatusText">Siap Dimulai</span>
                     </div>
                     <div id="thinking" class="thinking-indicator hidden">
                         <div class="spinner"></div>
@@ -39,17 +42,6 @@
             </div>
 
             <div class="controls-section">
-
-                <div class="game-status-indicator">
-                    <div class="status-badge" id="gameStatusBadge">
-                        <div class="turn-icon" id="turnIcon">
-                            <div class="chess-piece white-piece">♔</div>
-                            <div class="chess-piece black-piece hidden">♚</div>
-                        </div>
-                        <span id="gameStatusText">Siap Dimulai</span>
-                    </div>
-                </div>
-
                 <div class="config-section">
                     <h3>Konfigurasi Permainan</h3>
                     
@@ -102,6 +94,14 @@
                     </div>
                 </div>
 
+                <div class="batch-config">
+                    <label for="gameCount">Jumlah Permainan</label>
+                    <div class="batch-input-wrapper">
+                        <input type="number" id="gameCount" class="depth-input" value="1" min="1" max="100">
+                        <span class="depth-hint">Untuk testing performa</span>
+                    </div>
+                </div>
+
                 <div class="action-buttons">
                     <button id="startGameBtn" class="btn btn-primary">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -109,12 +109,41 @@
                         </svg>
                         Mulai Simulasi
                     </button>
+                    <button id="skipBtn" class="btn btn-warning hidden">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 2L12 8L2 14V2Z" fill="currentColor"/>
+                            <path d="M12 2L14 2L14 14L12 14V2Z" fill="currentColor"/>
+                        </svg>
+                        Skip
+                    </button>
                     <button id="newGameBtn" class="btn btn-secondary">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z" fill="currentColor"/>
                         </svg>
                         Reset Permainan
                     </button>
+                </div>
+
+                <div id="resultsSection" class="results-section hidden">
+                    <h4>Hasil Simulasi</h4>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <span class="result-label">Total Permainan:</span>
+                            <span class="result-value" id="totalGames">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Algoritma Menang:</span>
+                            <span class="result-value win" id="algorithmWins">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Stockfish Menang:</span>
+                            <span class="result-value loss" id="stockfishWins">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Seri:</span>
+                            <span class="result-value draw" id="draws">0</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="algorithm-info">
