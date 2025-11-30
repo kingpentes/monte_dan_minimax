@@ -32,6 +32,7 @@ Proyek sepenuhnya berbasis Python:
 * `random`, `numpy` → simulasi acak (Monte Carlo)
 * `time` → tracking waktu
 * `matplotlib` → visualisasi hasil
+* `flask` → web server untuk UI
 * **Tidak menggunakan library eksternal lain** kecuali dibutuhkan untuk keperluan testing ringan.
 
 ---
@@ -64,9 +65,19 @@ AI IDE () harus menjaga struktur berikut:
 │   ├── charts/                  # grafik hasil
 │   └── summary.json             # ringkasan hasil uji
 │
-└── tests/
-    ├── test_minimax.py
-    └── test_mc.py
+├── tests/
+│   ├── test_minimax.py
+│   └── test_mc.py
+│
+└── web/                         # Frontend Web UI
+    ├── app.py                   # Flask App
+    ├── templates/
+    │   └── index.html           # Halaman utama
+    └── static/
+        ├── css/
+        │   └── style.css        # Styling
+        └── js/
+            └── script.js        # Logic frontend
 ```
 
  **jangan mengubah nama folder** tanpa instruksi eksplisit.
@@ -187,15 +198,39 @@ Proyek harus menghasilkan:
 2. **Engine Hybrid Minimax + Monte Carlo yang berfungsi**
 3. **Script pengujian otomatis**
 4. **Perbandingan performa (waktu vs akurasi)**
+5. **Web UI sederhana untuk demonstrasi**
+
+---
+
+# 📖 **10. Panduan Instalasi dan Penggunaan**
+
+### **Instalasi**
+
+1.  Pastikan Python 3.10+ terinstall.
+2.  Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### **Menjalankan Web UI**
+
+1.  Buka terminal di root folder proyek.
+2.  Jalankan perintah:
+    ```bash
+    python web/app.py
+    ```
+3.  Buka browser dan akses `http://127.0.0.1:5000`.
+
+### **Menjalankan Eksperimen Engine (CLI)**
+
+1.  Jalankan perintah:
+    ```bash
+    python engine-chess/main.py --stockfish "path/to/stockfish" --games 10
+    ```
+    *Ganti `path/to/stockfish` dengan lokasi file executable Stockfish di komputer Anda.*
 
 ---
 
 # ✔️ **Dokumen ini harus dibaca oleh AI pada setiap permulaan tugas.**
 
 Silakan mengikuti seluruh aturan secara konsisten.
-
----
-
-dia langsung mengikuti pedoman di `KONSEP.md`.
-
-Ingin dibuatkan?
