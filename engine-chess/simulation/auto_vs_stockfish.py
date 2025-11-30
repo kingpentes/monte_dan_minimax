@@ -25,6 +25,8 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
     """
     board = chess.Board()
     engine_move_times = []
+    engine_cp_losses = []
+    engine_best_move_matches = []
     
     try:
         if stockfish_path == "mock":
@@ -61,6 +63,41 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
                 if move is None:
                     # Should not happen unless no legal moves (game over check handles this)
                     break
+                
+                # Analyze Move (if Stockfish is available and not mock)
+                if stockfish and not isinstance(stockfish, type) and hasattr(stockfish, 'analyse'):
+                    try:
+                        # 1. Analyze position to get Best Move & Score
+                        limit = chess.engine.Limit(time=0.1)
+                        info = stockfish.analyse(board, limit, multipv=1)
+                        
+                        # Handle case where info might be a list (though usually it's a dict for multipv=1)
+                        if isinstance(info, list):
+                            info = info[0]
+                            
+                        best_move = info["pv"][0]
+                        best_score = info["score"].relative.score(mate_score=10000)
+                        
+                        # 2. Analyze Chosen Move
+                        info_chosen = stockfish.analyse(board, limit, root_moves=[move])
+                        
+                        if isinstance(info_chosen, list):
+                            info_chosen = info_chosen[0]
+                            
+                        chosen_score = info_chosen["score"].relative.score(mate_score=10000)
+                        
+                        # Calculate Metrics
+                        cp_loss = max(0, best_score - chosen_score)
+                        is_match = (move == best_move)
+                        
+                        engine_cp_losses.append(cp_loss)
+                        engine_best_move_matches.append(1 if is_match else 0)
+                        
+                        # print(f"    Move Analysis: CP Loss={cp_loss}, Match={is_match}")
+                        
+                    except Exception as e:
+                        print(f"Analysis failed: {e} (Type: {type(info) if 'info' in locals() else 'unknown'})")
+                        
                 board.push(move)
             else:
                 # Stockfish Move
@@ -84,7 +121,11 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
             
     return {
         "result_score": result_score,
+        "result_score": result_score,
         "engine_move_times": engine_move_times,
+        "engine_cp_losses": engine_cp_losses,
+        "engine_best_move_matches": engine_best_move_matches,
+        "fen": board.fen(),
         "fen": board.fen(),
         "termination": str(outcome.termination) if outcome else "Unknown"
     }
