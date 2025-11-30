@@ -2,8 +2,8 @@
 Runner for running multiple games and collecting aggregate metrics.
 """
 
-from .auto_vs_stockfish import play_vs_stockfish
-from .metrics import calculate_stats, calculate_winrate, save_summary_json
+from simulation.auto_vs_stockfish import play_vs_stockfish
+from simulation.metrics import calculate_stats, calculate_winrate, save_summary_json
 import chess
 
 def run_experiment(n_games, stockfish_path, engine_depth, use_mc, rollout_count, output_file):

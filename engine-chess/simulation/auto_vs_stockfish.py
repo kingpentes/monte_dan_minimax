@@ -5,8 +5,8 @@ Module to run games against Stockfish.
 import chess
 import chess.engine
 import time
-from ..minimax.minimax_ab import select_best_move
-from .metrics import measure_move_time
+from minimax.minimax_ab import select_best_move
+from simulation.metrics import measure_move_time
 
 def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engine_color=chess.WHITE, time_limit=0.1):
     """
@@ -27,9 +27,21 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
     engine_move_times = []
     
     try:
-        # Use simple engine for Stockfish
-        # Note: User must provide valid path.
-        transport, stockfish = chess.engine.SimpleEngine.popen_uci(stockfish_path)
+        if stockfish_path == "mock":
+            class MockEngine:
+                def play(self, board, limit):
+                    import random
+                    if not list(board.legal_moves):
+                         return chess.engine.PlayResult(None, None)
+                    move = random.choice(list(board.legal_moves))
+                    return chess.engine.PlayResult(move, None)
+                def quit(self):
+                    pass
+            stockfish = MockEngine()
+        else:
+            # Use simple engine for Stockfish
+            # Note: User must provide valid path.
+            transport, stockfish = chess.engine.SimpleEngine.popen_uci(stockfish_path)
     except FileNotFoundError:
         print(f"Stockfish not found at {stockfish_path}")
         return None

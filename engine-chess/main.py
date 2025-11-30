@@ -21,7 +21,7 @@ def main():
     
     print(f"Running Experiment: Mode={args.mode}, Games={args.games}, Depth={args.depth}")
     
-    run_experiment(
+    summary = run_experiment(
         n_games=args.games,
         stockfish_path=args.stockfish,
         engine_depth=args.depth,
@@ -29,6 +29,11 @@ def main():
         rollout_count=args.rollouts,
         output_file=args.output
     )
+    
+    # Generate charts
+    from simulation.charts import generate_charts
+    charts_dir = os.path.join(os.path.dirname(args.output), "charts")
+    generate_charts(summary, charts_dir)
 
 if __name__ == "__main__":
     main()
