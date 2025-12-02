@@ -5,7 +5,7 @@ Monte Carlo evaluator using random rollouts.
 import chess
 import random
 
-def simulate_random(board: chess.Board, max_steps=40) -> float:
+def simulate_random(board: chess.Board, max_steps=20) -> float:
     """
     Simulates a random game from the current position up to max_steps.
     Returns:
@@ -39,7 +39,7 @@ def simulate_random(board: chess.Board, max_steps=40) -> float:
     # But strictly following "Return nilai float -1 sampai 1", 0.0 is safe for unfinished.
     return 0.0
 
-def evaluate_mc(board: chess.Board, rollout_count=100) -> float:
+def evaluate_mc(board: chess.Board, rollout_count=30) -> float:
     """
     Runs multiple random simulations and returns the average score.
     Range: -1.0 (Black wins all) to 1.0 (White wins all).

@@ -61,7 +61,7 @@ def minimax(board: chess.Board, depth: int, alpha: float, beta: float, maximizin
                 break
         return min_eval
 
-def select_best_move(board: chess.Board, depth=3, use_mc=False, rollout_count=100):
+def select_best_move(board: chess.Board, depth=3, use_mc=False, rollout_count=30):
     """
     Root function to select the best move using Minimax.
     """

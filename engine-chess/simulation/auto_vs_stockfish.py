@@ -59,6 +59,7 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
                     use_mc=use_mc, 
                     rollout_count=rollout_count
                 )
+                print(f"\r    Move {board.fullmove_number} (Engine): {duration:.2f}s", end="", flush=True)
                 engine_move_times.append(duration)
                 if move is None:
                     # Should not happen unless no legal moves (game over check handles this)
@@ -105,6 +106,7 @@ def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engin
                 board.push(result.move)
                 
     finally:
+        print() # Newline after progress bar
         stockfish.quit()
         
     # Determine result
