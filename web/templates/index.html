@@ -21,6 +21,144 @@
         </header>
 
         <div class="main-content">
+            <!-- Collapsible Statistics Section -->
+            <div id="statsCollapse" class="stats-collapse hidden">
+                <button id="statsToggle" class="stats-toggle">
+                    <span class="toggle-icon">▼</span>
+                    <span class="toggle-text">📊 Statistik Hasil Simulasi</span>
+                    <span class="toggle-badge" id="statsB adge"></span>
+                </button>
+                
+                <div id="statsContent" class="stats-content">
+                    <div class="results-summary">
+                        <div class="summary-card primary">
+                            <div class="summary-icon">🎮</div>
+                            <div class="summary-content">
+                                <span class="summary-label">Total Permainan</span>
+                                <span class="summary-value" id="totalGames">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card win">
+                            <div class="summary-icon">🎯</div>
+                            <div class="summary-content">
+                                <span class="summary-label">Akurasi Algoritma</span>
+                                <span class="summary-value" id="algorithmAccuracy">0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card loss">
+                            <div class="summary-icon">⚡</div>
+                            <div class="summary-content">
+                                <span class="summary-label">Akurasi Stockfish</span>
+                                <span class="summary-value" id="stockfishAccuracy">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <span class="result-label">✅ Algoritma Menang:</span>
+                            <span class="result-value win" id="algorithmWins">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">❌ Stockfish Menang:</span>
+                            <span class="result-value loss" id="stockfishWins">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">🤝 Seri:</span>
+                            <span class="result-value draw" id="draws">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">⚡ Rata-rata Gerakan:</span>
+                            <span class="result-value" id="avgMoves">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-details">
+                        <h5>Detail Performa</h5>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-icon">🎯</span>
+                                <div class="stat-info">
+                                    <span class="stat-label">Total Gerakan -> </span>
+                                    <span class="stat-value" id="totalMoves">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">⏱️</span>
+                                <div class="stat-info">
+                                    <span class="stat-label">Waktu Total -> </span>
+                                    <span class="stat-value" id="totalTime">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">📈</span>
+                                <div class="stat-info">
+                                    <span class="stat-label">Game Terpanjang -> </span>
+                                    <span class="stat-value" id="longestGame">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-icon">📉</span>
+                                <div class="stat-info">
+                                    <span class="stat-label">Game Terpendek -> </span>
+                                    <span class="stat-value" id="shortestGame">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accuracy-section">
+                        <h5>📊 Akurasi Gerakan Algoritma</h5>
+                        <div class="accuracy-grid">
+                            <div class="accuracy-item excellent">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">⭐</span>
+                                    <span>Excellent</span>
+                                </div>
+                                <span class="accuracy-count" id="excellentMoves">0</span>
+                            </div>
+                            <div class="accuracy-item good">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">✅</span>
+                                    <span>Good</span>
+                                </div>
+                                <span class="accuracy-count" id="goodMoves">0</span>
+                            </div>
+                            <div class="accuracy-item inaccuracy">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">⚠️</span>
+                                    <span>Inaccuracy</span>
+                                </div>
+                                <span class="accuracy-count" id="inaccuracyMoves">0</span>
+                            </div>
+                            <div class="accuracy-item mistake">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">❌</span>
+                                    <span>Mistake</span>
+                                </div>
+                                <span class="accuracy-count" id="mistakeMoves">0</span>
+                            </div>
+                            <div class="accuracy-item blunder">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">💥</span>
+                                    <span>Blunder</span>
+                                </div>
+                                <span class="accuracy-count" id="blunderMoves">0</span>
+                            </div>
+                            <div class="accuracy-item average">
+                                <div class="accuracy-label">
+                                    <span class="accuracy-icon">📊</span>
+                                    <span>Avg CP Loss</span>
+                                </div>
+                                <span class="accuracy-count" id="avgCPLoss">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="board-section">
                 <div class="board-wrapper">
                     <div id="board"></div>
@@ -122,28 +260,6 @@
                         </svg>
                         Reset Permainan
                     </button>
-                </div>
-
-                <div id="resultsSection" class="results-section hidden">
-                    <h4>Hasil Simulasi</h4>
-                    <div class="results-grid">
-                        <div class="result-item">
-                            <span class="result-label">Total Permainan:</span>
-                            <span class="result-value" id="totalGames">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Algoritma Menang:</span>
-                            <span class="result-value win" id="algorithmWins">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Stockfish Menang:</span>
-                            <span class="result-value loss" id="stockfishWins">0</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Seri:</span>
-                            <span class="result-value draw" id="draws">0</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="algorithm-info">

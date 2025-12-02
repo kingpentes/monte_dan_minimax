@@ -9,10 +9,33 @@ var batchResults = {
     total: 0,
     algorithmWins: 0,
     stockfishWins: 0,
-    draws: 0
+    draws: 0,
+    totalMoves: 0,
+    longestGame: 0,
+    shortestGame: 999,
+    startTime: null,
+    accuracy: {
+        excellent: 0,
+        good: 0,
+        inaccuracy: 0,
+        mistake: 0,
+        blunder: 0,
+        totalCPLoss: 0,
+        evaluatedMoves: 0
+    },
+    stockfishAccuracy: {
+        excellent: 0,
+        good: 0,
+        inaccuracy: 0,
+        mistake: 0,
+        blunder: 0,
+        totalCPLoss: 0,
+        evaluatedMoves: 0
+    }
 }
 var currentBatchGame = 0
 var totalBatchGames = 1
+var currentGameMoves = 0
 
 function onDragStart (source, piece, position, orientation) {
   return false
@@ -39,7 +62,8 @@ function makeAIMove() {
                 fen: game.fen(),
                 depth: depth,
                 mode: mode,
-                rollout: rollout
+                rollout: rollout,
+                evaluate: true
             }),
             success: function(response) {
                 handleMoveResponse(response)
@@ -55,7 +79,8 @@ function makeAIMove() {
             contentType: 'application/json',
             data: JSON.stringify({
                 fen: game.fen(),
-                time_limit: 0.1
+                time_limit: 0.1,
+                evaluate: true
             }),
             success: function(response) {
                 handleMoveResponse(response)
@@ -71,12 +96,41 @@ function handleMoveResponse(response) {
     $thinking.addClass('hidden')
     
     if (response.move) {
+        var algorithmColor = $('#colorSelect').val()
+        var currentTurn = game.turn() === 'w' ? 'white' : 'black'
+        var isAlgorithmMove = (currentTurn === algorithmColor)
+        
         game.move({
             from: response.from,
             to: response.to,
             promotion: response.promotion || 'q'
         })
         board.position(game.fen())
+        currentGameMoves++
+        
+        // Track move quality if evaluation is available
+        if (response.evaluation && response.evaluation.quality) {
+            var quality = response.evaluation.quality
+            
+            if (isAlgorithmMove) {
+                // Algorithm move
+                batchResults.accuracy[quality]++
+                batchResults.accuracy.evaluatedMoves++
+                
+                if (response.evaluation.cp_loss !== null) {
+                    batchResults.accuracy.totalCPLoss += Math.abs(response.evaluation.cp_loss)
+                }
+            } else {
+                // Stockfish move
+                batchResults.stockfishAccuracy[quality]++
+                batchResults.stockfishAccuracy.evaluatedMoves++
+                
+                if (response.evaluation.cp_loss !== null) {
+                    batchResults.stockfishAccuracy.totalCPLoss += Math.abs(response.evaluation.cp_loss)
+                }
+            }
+        }
+        
         updateStatus()
         
         if (isDemoRunning && !game.game_over()) {
@@ -112,6 +166,15 @@ function handleGameEnd() {
     }
     
     batchResults.total++
+    batchResults.totalMoves += currentGameMoves
+    
+    if (currentGameMoves > batchResults.longestGame) {
+        batchResults.longestGame = currentGameMoves
+    }
+    if (currentGameMoves < batchResults.shortestGame) {
+        batchResults.shortestGame = currentGameMoves
+    }
+    
     if (winner === algorithmColor) {
         batchResults.algorithmWins++
     } else if (winner && winner !== algorithmColor) {
@@ -121,6 +184,7 @@ function handleGameEnd() {
     }
     
     currentBatchGame++
+    currentGameMoves = 0
     
     if (currentBatchGame < totalBatchGames) {
         game.reset()
@@ -137,6 +201,7 @@ function handleGameEnd() {
 
 function showFinalResults() {
     var result = ''
+    var elapsedTime = batchResults.startTime ? ((Date.now() - batchResults.startTime) / 1000).toFixed(1) : 0
     
     if (totalBatchGames === 1) {
         if (batchResults.algorithmWins > 0) {
@@ -148,19 +213,50 @@ function showFinalResults() {
         }
         
         $status.html(result)
-        
-        setTimeout(function() {
-            alert(result + '\n\nKlik "Reset Permainan" untuk memulai simulasi baru.')
-        }, 500)
-    } else {
-        $status.html('✅ Simulasi Selesai - ' + totalBatchGames + ' Permainan')
-        
-        $('#totalGames').text(batchResults.total)
-        $('#algorithmWins').text(batchResults.algorithmWins)
-        $('#stockfishWins').text(batchResults.stockfishWins)
-        $('#draws').text(batchResults.draws)
-        $('#resultsSection').removeClass('hidden')
     }
+    
+    // Calculate ACPL (Average Centipawn Loss) for both players
+    var algoACPL = batchResults.accuracy.evaluatedMoves > 0 ? 
+        (batchResults.accuracy.totalCPLoss / batchResults.accuracy.evaluatedMoves) : 0
+    var stockfishACPL = batchResults.stockfishAccuracy.evaluatedMoves > 0 ? 
+        (batchResults.stockfishAccuracy.totalCPLoss / batchResults.stockfishAccuracy.evaluatedMoves) : 0
+    
+    // Calculate Accuracy % using Chess.com formula: Accuracy = max(0, 100 - (ACPL / 10))
+    var algorithmAccuracy = Math.max(0, 100 - (algoACPL / 10)).toFixed(1)
+    var stockfishAccuracy = Math.max(0, 100 - (stockfishACPL / 10)).toFixed(1)
+    
+    // Always show statistics (for both single and batch games)
+    var avgMoves = batchResults.total > 0 ? (batchResults.totalMoves / batchResults.total).toFixed(1) : 0
+    var avgCPLoss = algoACPL.toFixed(1)
+    
+    $('#totalGames').text(batchResults.total)
+    $('#algorithmAccuracy').text(algorithmAccuracy + '%')
+    $('#stockfishAccuracy').text(stockfishAccuracy + '%')
+    $('#algorithmWins').text(batchResults.algorithmWins)
+    $('#stockfishWins').text(batchResults.stockfishWins)
+    $('#draws').text(batchResults.draws)
+    $('#avgMoves').text(avgMoves)
+    $('#totalMoves').text(batchResults.totalMoves + ' gerakan')
+    $('#totalTime').text(elapsedTime + ' detik')
+    $('#longestGame').text(batchResults.longestGame + ' gerakan')
+    $('#shortestGame').text(batchResults.shortestGame === 999 ? '0' : batchResults.shortestGame + ' gerakan')
+    
+    // Accuracy statistics (Algorithm only)
+    $('#excellentMoves').text(batchResults.accuracy.excellent)
+    $('#goodMoves').text(batchResults.accuracy.good)
+    $('#inaccuracyMoves').text(batchResults.accuracy.inaccuracy)
+    $('#mistakeMoves').text(batchResults.accuracy.mistake)
+    $('#blunderMoves').text(batchResults.accuracy.blunder)
+    $('#avgCPLoss').text(avgCPLoss)
+    
+    // Show and expand stats collapse
+    $('#statsCollapse').removeClass('hidden').addClass('expanded')
+    $('#statsBadge').text(batchResults.total + ' Game' + (batchResults.total > 1 ? 's' : ''))
+    
+    // Scroll to stats
+    setTimeout(function() {
+        document.getElementById('statsCollapse').scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
     
     lockParameters(false)
     updateGameStatus('finished')
@@ -307,10 +403,33 @@ $('#newGameBtn').on('click', function() {
         total: 0,
         algorithmWins: 0,
         stockfishWins: 0,
-        draws: 0
+        draws: 0,
+        totalMoves: 0,
+        longestGame: 0,
+        shortestGame: 999,
+        startTime: null,
+        accuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        },
+        stockfishAccuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        }
     }
     currentBatchGame = 0
-    $('#resultsSection').addClass('hidden')
+    currentGameMoves = 0
+    $('#statsCollapse').removeClass('expanded').addClass('hidden')
     $('#skipBtn').addClass('hidden')
     
     lockParameters(false)
@@ -332,11 +451,34 @@ $('#startGameBtn').on('click', function() {
     
     totalBatchGames = parseInt($('#gameCount').val()) || 1
     currentBatchGame = 0
+    currentGameMoves = 0
     batchResults = {
         total: 0,
         algorithmWins: 0,
         stockfishWins: 0,
-        draws: 0
+        draws: 0,
+        totalMoves: 0,
+        longestGame: 0,
+        shortestGame: 999,
+        startTime: Date.now(),
+        accuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        },
+        stockfishAccuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        }
     }
     
     $('#resultsSection').addClass('hidden')
@@ -351,4 +493,9 @@ $('#startGameBtn').on('click', function() {
     
     updateStatus()
     makeAIMove()
+})
+
+// Stats toggle handler
+$('#statsToggle').on('click', function() {
+    $('#statsCollapse').toggleClass('expanded')
 })
