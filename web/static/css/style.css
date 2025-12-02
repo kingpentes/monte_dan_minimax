@@ -739,6 +739,13 @@ h1 {
     padding: 1.5rem;
 }
 
+.summary-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .results-summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
