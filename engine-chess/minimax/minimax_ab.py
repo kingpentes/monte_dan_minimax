@@ -9,30 +9,10 @@ from .evaluator_static import evaluate_static
 from .evaluator_mc import evaluate_mc
 
 def minimax(board: chess.Board, depth: int, alpha: float, beta: float, maximizing: bool, use_mc=False, rollout_count=30):
-    """
-    Minimax with Alpha-Beta pruning.
-    
-    Args:
-        board: The current chess board state.
-        depth: The search depth.
-        alpha: The best value that the maximizer can guarantee.
-        beta: The best value that the minimizer can guarantee.
-        maximizing: True if it's White's turn (maximizing), False for Black.
-        use_mc: If True, use Monte Carlo evaluation at leaf nodes.
-        rollout_count: Number of rollouts for MC evaluation.
-        
-    Returns:
-        The evaluation score of the board.
-    """
+
     if depth == 0 or board.is_game_over():
         if use_mc:
-            # MC returns -1.0 to 1.0. Scale to be comparable if needed, 
-            # but for pure MC decision making, relative value matters.
-            # However, mixing might be tricky if not careful. 
-            # For this specific task, we just return the MC value.
-            # Note: MC range is small (-1 to 1), Static is large (e.g. 100s).
-            # If comparing, ensure consistency. Here we assume one mode is active at a time.
-            return evaluate_mc(board, rollout_count) * 1000 # Scale up to match static magnitude roughly
+            return evaluate_mc(board, rollout_count) * 1000 
         else:
             return evaluate_static(board)
 
@@ -62,9 +42,6 @@ def minimax(board: chess.Board, depth: int, alpha: float, beta: float, maximizin
         return min_eval
 
 def select_best_move(board: chess.Board, depth=3, use_mc=False, rollout_count=30):
-    """
-    Root function to select the best move using Minimax.
-    """
     best_move = None
     max_eval = -math.inf
     min_eval = math.inf

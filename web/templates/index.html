@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulasi Engine Catur - Minimax vs Monte Carlo</title>
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -15,7 +18,8 @@
             <p class="subtitle">Perbandingan Algoritma Minimax vs Monte Carlo</p>
             <div class="project-info">
                 <p class="project-title">Tugas Besar Pengantar Kecerdasan Artifisial</p>
-                <p class="project-desc">Implementasi dan Perbandingan Dua Algoritma Pencarian Langkah dalam Engine Catur</p>
+                <p class="project-desc">Implementasi dan Perbandingan Dua Algoritma Pencarian Langkah dalam Engine Catur
+                </p>
                 <p class="credit">Kelompok 9 - Kelas PKA C</p>
             </div>
         </header>
@@ -28,7 +32,7 @@
                     <span class="toggle-text">📊 Statistik Hasil Simulasi</span>
                     <span class="toggle-badge" id="statsB adge"></span>
                 </button>
-                
+
                 <div id="statsContent" class="stats-content">
                     <div class="results-summary">
                         <div class="summary-card primary">
@@ -38,7 +42,7 @@
                                 <span class="summary-value" id="totalGames">0</span>
                             </div>
                         </div>
-                        
+
                         <div class="summary-card win">
                             <div class="summary-icon">🎯</div>
                             <div class="summary-content">
@@ -46,7 +50,7 @@
                                 <span class="summary-value" id="algorithmAccuracy">0%</span>
                             </div>
                         </div>
-                        
+
                         <div class="summary-card loss">
                             <div class="summary-icon">⚡</div>
                             <div class="summary-content">
@@ -55,7 +59,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="results-grid">
                         <div class="result-item">
                             <span class="result-label">✅ Algoritma Menang:</span>
@@ -74,7 +78,7 @@
                             <span class="result-value" id="avgMoves">0</span>
                         </div>
                     </div>
-                    
+
                     <div class="stats-details">
                         <h5>Detail Performa</h5>
                         <div class="stats-grid">
@@ -108,7 +112,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="accuracy-section">
                         <h5>📊 Akurasi Gerakan Algoritma</h5>
                         <div class="accuracy-grid">
@@ -159,6 +163,111 @@
                 </div>
             </div>
 
+            <!-- Move History Panel -->
+            <div id="moveHistoryCollapse" class="stats-collapse hidden">
+                <button id="moveHistoryToggle" class="stats-toggle">
+                    <span class="toggle-icon">▼</span>
+                    <span class="toggle-text">📝 Riwayat Gerakan</span>
+                    <span class="toggle-badge" id="moveCountBadge">0</span>
+                </button>
+
+                <div id="moveHistoryContent" class="stats-content">
+                    <div class="move-history-grid" id="moveHistoryGrid">
+                        <!-- Moves will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div id="chartsCollapse" class="stats-collapse hidden">
+                <button id="chartsToggle" class="stats-toggle">
+                    <span class="toggle-icon">▼</span>
+                    <span class="toggle-text">📊 Grafik Performa (Live)</span>
+                </button>
+
+                <div id="chartsContent" class="stats-content">
+                    <div class="charts-grid" id="chartsGrid">
+                        <div class="chart-item">
+                            <h5>Kualitas Gerakan</h5>
+                            <img id="moveQualityChart" src="" alt="Move Quality Chart" class="chart-image hidden">
+                            <div class="chart-placeholder" id="moveQualityPlaceholder">
+                                <span>Grafik akan muncul setelah permainan</span>
+                            </div>
+                        </div>
+                        <div class="chart-item">
+                            <h5>Hasil Permainan</h5>
+                            <img id="gameResultsChart" src="" alt="Game Results Chart" class="chart-image hidden">
+                            <div class="chart-placeholder" id="gameResultsPlaceholder">
+                                <span>Grafik akan muncul setelah permainan</span>
+                            </div>
+                        </div>
+                        <div class="chart-item">
+                            <h5>Perbandingan Akurasi</h5>
+                            <img id="accuracyChart" src="" alt="Accuracy Chart" class="chart-image hidden">
+                            <div class="chart-placeholder" id="accuracyPlaceholder">
+                                <span>Grafik akan muncul setelah permainan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offline Comparison Reports Section -->
+            <div id="offlineReportsCollapse" class="stats-collapse">
+                <button id="offlineReportsToggle" class="stats-toggle">
+                    <span class="toggle-icon">▼</span>
+                    <span class="toggle-text">📑 Laporan Komparasi (Offline)</span>
+                </button>
+
+                <div id="offlineReportsContent" class="stats-content">
+                    <div class="report-controls" style="text-align: right; margin-bottom: 15px;">
+                        <button id="refreshReportsBtn" class="btn btn-sm btn-secondary"
+                            style="padding: 5px 10px; font-size: 0.9em;">
+                            🔄 Perbarui Laporan (Live)
+                        </button>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-item">
+                            <h5>Perbandingan Waktu (Time)</h5>
+                            <img src="/api/charts/comparison_time.png" alt="Comparison Time"
+                                class="chart-image offline-chart"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="chart-placeholder" style="display:none;">
+                                <span>Laporan belum tersedia<br>(Jalankan generate_report.py)</span>
+                            </div>
+                        </div>
+                        <div class="chart-item">
+                            <h5>Perbandingan Skor (Win Rate)</h5>
+                            <img src="/api/charts/comparison_score.png" alt="Comparison Score"
+                                class="chart-image offline-chart"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="chart-placeholder" style="display:none;">
+                                <span>Laporan belum tersedia<br>(Jalankan generate_report.py)</span>
+                            </div>
+                        </div>
+                        <div class="chart-item">
+                            <h5>Perbandingan Centipawn Loss (CPL)</h5>
+                            <img src="/api/charts/comparison_cpl.png" alt="Comparison CPL"
+                                class="chart-image offline-chart"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="chart-placeholder" style="display:none;">
+                                <span>Laporan belum tersedia<br>(Jalankan generate_report.py)</span>
+                            </div>
+                        </div>
+                        <div class="chart-item">
+                            <h5>Perbandingan Match Rate</h5>
+                            <img src="/api/charts/comparison_match_rate.png" alt="Comparison Match Rate"
+                                class="chart-image offline-chart"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div class="chart-placeholder" style="display:none;">
+                                <span>Laporan belum tersedia<br>(Jalankan generate_report.py)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="board-section">
                 <div class="board-wrapper">
                     <div id="board"></div>
@@ -182,11 +291,13 @@
             <div class="controls-section">
                 <div class="config-section">
                     <h3>Konfigurasi Permainan</h3>
-                    
+
                     <div class="player-config">
                         <div class="player-header">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" fill="#4a90e2"/>
+                                <path
+                                    d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"
+                                    fill="#4a90e2" />
                             </svg>
                             <span>Pilih Algoritma</span>
                         </div>
@@ -209,8 +320,8 @@
 
                     <div class="opponent-info">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#10b981"/>
-                            <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#10b981"/>
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#10b981" />
+                            <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#10b981" />
                         </svg>
                         <span><strong>Lawan:</strong> Stockfish Engine</span>
                     </div>
@@ -246,7 +357,9 @@
                         <h3>Konfigurasi Buah Catur</h3>
                         <button id="resetPiecesBtn" class="btn-reset-pieces" title="Reset semua buah catur">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z" fill="currentColor"/>
+                                <path
+                                    d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z"
+                                    fill="currentColor" />
                             </svg>
                             Reset
                         </button>
@@ -254,23 +367,39 @@
                     <p class="piece-config-hint">Klik buah catur untuk menghilangkan dari papan</p>
                     <div id="pieceBoard" class="piece-board">
                         <!-- Row 8 - Black major pieces -->
-                        <div class="piece-cell light" data-square="a8" data-piece="r"><span class="piece-icon">♜</span></div>
-                        <div class="piece-cell dark" data-square="b8" data-piece="n"><span class="piece-icon">♞</span></div>
-                        <div class="piece-cell light" data-square="c8" data-piece="b"><span class="piece-icon">♝</span></div>
-                        <div class="piece-cell dark" data-square="d8" data-piece="q"><span class="piece-icon">♛</span></div>
-                        <div class="piece-cell light" data-square="e8" data-piece="k" data-locked="true"><span class="piece-icon">♚</span></div>
-                        <div class="piece-cell dark" data-square="f8" data-piece="b"><span class="piece-icon">♝</span></div>
-                        <div class="piece-cell light" data-square="g8" data-piece="n"><span class="piece-icon">♞</span></div>
-                        <div class="piece-cell dark" data-square="h8" data-piece="r"><span class="piece-icon">♜</span></div>
+                        <div class="piece-cell light" data-square="a8" data-piece="r"><span class="piece-icon">♜</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="b8" data-piece="n"><span class="piece-icon">♞</span>
+                        </div>
+                        <div class="piece-cell light" data-square="c8" data-piece="b"><span class="piece-icon">♝</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="d8" data-piece="q"><span class="piece-icon">♛</span>
+                        </div>
+                        <div class="piece-cell light" data-square="e8" data-piece="k" data-locked="true"><span
+                                class="piece-icon">♚</span></div>
+                        <div class="piece-cell dark" data-square="f8" data-piece="b"><span class="piece-icon">♝</span>
+                        </div>
+                        <div class="piece-cell light" data-square="g8" data-piece="n"><span class="piece-icon">♞</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="h8" data-piece="r"><span class="piece-icon">♜</span>
+                        </div>
                         <!-- Row 7 - Black pawns -->
-                        <div class="piece-cell dark" data-square="a7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell light" data-square="b7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell dark" data-square="c7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell light" data-square="d7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell dark" data-square="e7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell light" data-square="f7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell dark" data-square="g7" data-piece="p"><span class="piece-icon">♟</span></div>
-                        <div class="piece-cell light" data-square="h7" data-piece="p"><span class="piece-icon">♟</span></div>
+                        <div class="piece-cell dark" data-square="a7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell light" data-square="b7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="c7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell light" data-square="d7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="e7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell light" data-square="f7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="g7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
+                        <div class="piece-cell light" data-square="h7" data-piece="p"><span class="piece-icon">♟</span>
+                        </div>
                         <!-- Row 6 - Empty -->
                         <div class="piece-cell light empty" data-square="a6"></div>
                         <div class="piece-cell dark empty" data-square="b6"></div>
@@ -308,23 +437,39 @@
                         <div class="piece-cell dark empty" data-square="g3"></div>
                         <div class="piece-cell light empty" data-square="h3"></div>
                         <!-- Row 2 - White pawns -->
-                        <div class="piece-cell light" data-square="a2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell dark" data-square="b2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell light" data-square="c2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell dark" data-square="d2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell light" data-square="e2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell dark" data-square="f2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell light" data-square="g2" data-piece="P"><span class="piece-icon">♙</span></div>
-                        <div class="piece-cell dark" data-square="h2" data-piece="P"><span class="piece-icon">♙</span></div>
+                        <div class="piece-cell light" data-square="a2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="b2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell light" data-square="c2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="d2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell light" data-square="e2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="f2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell light" data-square="g2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="h2" data-piece="P"><span class="piece-icon">♙</span>
+                        </div>
                         <!-- Row 1 - White major pieces -->
-                        <div class="piece-cell dark" data-square="a1" data-piece="R"><span class="piece-icon">♖</span></div>
-                        <div class="piece-cell light" data-square="b1" data-piece="N"><span class="piece-icon">♘</span></div>
-                        <div class="piece-cell dark" data-square="c1" data-piece="B"><span class="piece-icon">♗</span></div>
-                        <div class="piece-cell light" data-square="d1" data-piece="Q"><span class="piece-icon">♕</span></div>
-                        <div class="piece-cell dark" data-square="e1" data-piece="K" data-locked="true"><span class="piece-icon">♔</span></div>
-                        <div class="piece-cell light" data-square="f1" data-piece="B"><span class="piece-icon">♗</span></div>
-                        <div class="piece-cell dark" data-square="g1" data-piece="N"><span class="piece-icon">♘</span></div>
-                        <div class="piece-cell light" data-square="h1" data-piece="R"><span class="piece-icon">♖</span></div>
+                        <div class="piece-cell dark" data-square="a1" data-piece="R"><span class="piece-icon">♖</span>
+                        </div>
+                        <div class="piece-cell light" data-square="b1" data-piece="N"><span class="piece-icon">♘</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="c1" data-piece="B"><span class="piece-icon">♗</span>
+                        </div>
+                        <div class="piece-cell light" data-square="d1" data-piece="Q"><span class="piece-icon">♕</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="e1" data-piece="K" data-locked="true"><span
+                                class="piece-icon">♔</span></div>
+                        <div class="piece-cell light" data-square="f1" data-piece="B"><span class="piece-icon">♗</span>
+                        </div>
+                        <div class="piece-cell dark" data-square="g1" data-piece="N"><span class="piece-icon">♘</span>
+                        </div>
+                        <div class="piece-cell light" data-square="h1" data-piece="R"><span class="piece-icon">♖</span>
+                        </div>
                     </div>
                     <div class="piece-legend">
                         <span class="legend-item"><span class="legend-dot active"></span> Aktif</span>
@@ -336,20 +481,22 @@
                 <div class="action-buttons">
                     <button id="startGameBtn" class="btn btn-primary">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 2L13 8L3 14V2Z" fill="currentColor"/>
+                            <path d="M3 2L13 8L3 14V2Z" fill="currentColor" />
                         </svg>
                         Mulai Simulasi
                     </button>
                     <button id="skipBtn" class="btn btn-warning hidden">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M2 2L12 8L2 14V2Z" fill="currentColor"/>
-                            <path d="M12 2L14 2L14 14L12 14V2Z" fill="currentColor"/>
+                            <path d="M2 2L12 8L2 14V2Z" fill="currentColor" />
+                            <path d="M12 2L14 2L14 14L12 14V2Z" fill="currentColor" />
                         </svg>
                         Skip
                     </button>
                     <button id="newGameBtn" class="btn btn-secondary">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z" fill="currentColor"/>
+                            <path
+                                d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z"
+                                fill="currentColor" />
                         </svg>
                         Reset Permainan
                     </button>
@@ -373,4 +520,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 </html>
