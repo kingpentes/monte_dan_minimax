@@ -187,8 +187,10 @@ function handleGameEnd() {
     currentGameMoves = 0
     
     if (currentBatchGame < totalBatchGames) {
-        game.reset()
-        board.position('start')
+        // Use custom FEN for batch games
+        var customFEN = getCustomFEN()
+        game = new Chess(customFEN)
+        board.position(customFEN)
         updateGameStatus('running', game.turn())
         setTimeout(function() {
             isDemoRunning = true
@@ -498,4 +500,195 @@ $('#startGameBtn').on('click', function() {
 // Stats toggle handler
 $('#statsToggle').on('click', function() {
     $('#statsCollapse').toggleClass('expanded')
+})
+
+// Piece Selection Functions
+function getCustomFEN() {
+    // Build FEN string based on selected pieces
+    var fenRows = []
+    
+    for (var row = 8; row >= 1; row--) {
+        var fenRow = ''
+        var emptyCount = 0
+        
+        for (var col = 0; col < 8; col++) {
+            var file = String.fromCharCode(97 + col) // 'a' to 'h'
+            var square = file + row
+            var $cell = $('.piece-cell[data-square="' + square + '"]')
+            
+            if ($cell.hasClass('empty') || $cell.hasClass('removed')) {
+                emptyCount++
+            } else {
+                if (emptyCount > 0) {
+                    fenRow += emptyCount
+                    emptyCount = 0
+                }
+                fenRow += $cell.data('piece')
+            }
+        }
+        
+        if (emptyCount > 0) {
+            fenRow += emptyCount
+        }
+        
+        fenRows.push(fenRow)
+    }
+    
+    // Combine rows with / and add default game state
+    return fenRows.join('/') + ' w KQkq - 0 1'
+}
+
+function resetPieceSelection() {
+    $('.piece-cell').removeClass('removed')
+}
+
+function lockPieceConfig(lock) {
+    if (lock) {
+        $('#pieceBoard').css('pointer-events', 'none').css('opacity', '0.6')
+        $('#resetPiecesBtn').prop('disabled', true).css('opacity', '0.6')
+    } else {
+        $('#pieceBoard').css('pointer-events', 'auto').css('opacity', '1')
+        $('#resetPiecesBtn').prop('disabled', false).css('opacity', '1')
+    }
+}
+
+// Piece cell click handler
+$('#pieceBoard').on('click', '.piece-cell', function() {
+    var $cell = $(this)
+    
+    // Ignore empty cells and locked cells (kings)
+    if ($cell.hasClass('empty') || $cell.data('locked')) {
+        if ($cell.data('locked')) {
+            // Visual feedback for locked cell
+            $cell.css('animation', 'shake 0.3s ease')
+            setTimeout(function() {
+                $cell.css('animation', '')
+            }, 300)
+        }
+        return
+    }
+    
+    // Toggle removed state
+    $cell.toggleClass('removed')
+})
+
+// Reset pieces button
+$('#resetPiecesBtn').on('click', function() {
+    resetPieceSelection()
+})
+
+// Add shake animation to CSS dynamically
+$('<style>@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }</style>').appendTo('head')
+
+// Modify newGameBtn to also reset pieces
+var originalNewGameClick = $('#newGameBtn').data('events')
+$('#newGameBtn').off('click').on('click', function() {
+    isDemoRunning = false
+    skipMode = false
+    if (demoTimeout) clearTimeout(demoTimeout)
+    game.reset()
+    board.start()
+    $status.html('Siap untuk memulai')
+    $thinking.addClass('hidden')
+    
+    batchResults = {
+        total: 0,
+        algorithmWins: 0,
+        stockfishWins: 0,
+        draws: 0,
+        totalMoves: 0,
+        longestGame: 0,
+        shortestGame: 999,
+        startTime: null,
+        accuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        },
+        stockfishAccuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        }
+    }
+    currentBatchGame = 0
+    currentGameMoves = 0
+    $('#statsCollapse').removeClass('expanded').addClass('hidden')
+    $('#skipBtn').addClass('hidden')
+    
+    // Reset piece selection
+    resetPieceSelection()
+    
+    lockParameters(false)
+    lockPieceConfig(false)
+    updateGameStatus('ready')
+    toggleRolloutInput()
+})
+
+// Modify startGameBtn to use custom FEN
+$('#startGameBtn').off('click').on('click', function() {
+    if (isDemoRunning) return
+    
+    // Get custom FEN from piece selection
+    var customFEN = getCustomFEN()
+    
+    // Reset game with custom position
+    game = new Chess(customFEN)
+    board.position(customFEN)
+    
+    skipMode = false
+    
+    totalBatchGames = parseInt($('#gameCount').val()) || 1
+    currentBatchGame = 0
+    currentGameMoves = 0
+    batchResults = {
+        total: 0,
+        algorithmWins: 0,
+        stockfishWins: 0,
+        draws: 0,
+        totalMoves: 0,
+        longestGame: 0,
+        shortestGame: 999,
+        startTime: Date.now(),
+        accuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        },
+        stockfishAccuracy: {
+            excellent: 0,
+            good: 0,
+            inaccuracy: 0,
+            mistake: 0,
+            blunder: 0,
+            totalCPLoss: 0,
+            evaluatedMoves: 0
+        }
+    }
+    
+    $('#resultsSection').addClass('hidden')
+    
+    isDemoRunning = true
+    
+    $('#skipBtn').removeClass('hidden').prop('disabled', false).text('Skip')
+    
+    lockParameters(true)
+    lockPieceConfig(true)
+    $('#gameCount').prop('disabled', true)
+    updateGameStatus('running', game.turn())
+    
+    updateStatus()
+    makeAIMove()
 })
