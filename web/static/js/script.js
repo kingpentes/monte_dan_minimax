@@ -896,3 +896,198 @@ $('#refreshReportsBtn').on('click', function () {
         }
     })
 })
+
+// === Head-to-Head Mode ===
+var h2hMode = false
+var h2hPlaying = false
+
+// Game mode selector
+$('#gameModeSelect').on('change', function () {
+    var mode = $(this).val()
+    
+    if (mode === 'head-to-head') {
+        // Switch to H2H mode
+        h2hMode = true
+        $('#vsHumanConfig').addClass('hidden')
+        $('#h2hConfig').removeClass('hidden')
+        $('#startDemo').text('🎮 Mulai Head-to-Head')
+        
+        // Disable board dragging in H2H mode
+        if (board) {
+            board = null
+        }
+    } else {
+        // Switch to VS Human mode
+        h2hMode = false
+        $('#vsHumanConfig').removeClass('hidden')
+        $('#h2hConfig').addClass('hidden')
+        $('#startDemo').text('🎮 Mulai Permainan')
+        
+        // Re-initialize board
+        if (!board) {
+            initBoard()
+        }
+    }
+})
+
+// Play H2H Auto Game
+function playH2HAutoGame() {
+    if (h2hPlaying) {
+        return
+    }
+    
+    h2hPlaying = true
+    isDemoRunning = true
+    
+    // Get configurations
+    var whiteMode = $('#h2hWhiteAlgo').val()
+    var whiteDepth = parseInt($('#h2hWhiteDepth').val())
+    var whiteRollout = parseInt($('#h2hWhiteRollout').val())
+    
+    var blackMode = $('#h2hBlackAlgo').val()
+    var blackDepth = parseInt($('#h2hBlackDepth').val())
+    var blackRollout = parseInt($('#h2hBlackRollout').val())
+    
+    // Reset game
+    game = new Chess()
+    if (board) {
+        board.position(game.fen())
+    }
+    
+    currentGameMoves = 0
+    moveHistory = []
+    
+    // Show thinking indicator
+    $thinking.removeClass('hidden')
+    $('#startDemo').prop('disabled', true)
+    $('#stopDemo').prop('disabled', false)
+    $('#gameStatusText').text('Pertandingan Sedang Berlangsung...')
+    
+    // Send request to auto-play endpoint
+    $.ajax({
+        url: '/h2h/auto_play',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            white_mode: whiteMode,
+            white_depth: whiteDepth,
+            white_rollout: whiteRollout,
+            black_mode: blackMode,
+            black_depth: blackDepth,
+            black_rollout: blackRollout
+        }),
+        success: function (response) {
+            if (response.success) {
+                displayH2HResults(response.result)
+            } else {
+                alert('Error: ' + (response.error || 'Unknown error'))
+            }
+        },
+        error: function (xhr) {
+            alert('Gagal menjalankan H2H: ' + (xhr.responseJSON ? xhr.responseJSON.error : xhr.statusText))
+        },
+        complete: function () {
+            $thinking.addClass('hidden')
+            h2hPlaying = false
+            isDemoRunning = false
+            $('#startDemo').prop('disabled', false)
+            $('#stopDemo').prop('disabled', true)
+        }
+    })
+}
+
+// Display H2H Results
+function displayH2HResults(result) {
+    // Update game board to final position
+    game.load(result.final_fen)
+    if (board) {
+        board.position(result.final_fen)
+    }
+    
+    // Update status
+    var statusText = ''
+    if (result.winner === 'white') {
+        statusText = '🤍 Putih Menang! (' + result.white.mode + ')'
+    } else if (result.winner === 'black') {
+        statusText = '🖤 Hitam Menang! (' + result.black.mode + ')'
+    } else {
+        statusText = '🤝 Permainan Seri!'
+    }
+    
+    statusText += ' - ' + result.total_moves + ' langkah'
+    statusText += ' (' + result.termination + ')'
+    
+    $('#gameStatusText').text(statusText)
+    
+    // Show detailed results
+    var resultsHTML = '<div class="h2h-results" style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">'
+    resultsHTML += '<h4 style="margin-bottom: 0.75rem;">📊 Hasil Head-to-Head</h4>'
+    
+    resultsHTML += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">'
+    
+    // White stats
+    resultsHTML += '<div style="padding: 0.75rem; background: white; border-radius: 8px; border: 2px solid ' + (result.winner === 'white' ? '#10b981' : '#e5e7eb') + ';">'
+    resultsHTML += '<div style="font-weight: 700; margin-bottom: 0.5rem;">🤍 Putih (' + result.white.mode + ')</div>'
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Depth: ' + result.white.depth + '</div>'
+    if (result.white.mode === 'hybrid') {
+        resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Rollout: ' + result.white.rollout + '</div>'
+    }
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b; margin-top: 0.5rem;">Avg Time: ' + result.white.avg_time + 's</div>'
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Total Time: ' + result.white.total_time + 's</div>'
+    resultsHTML += '</div>'
+    
+    // Black stats
+    resultsHTML += '<div style="padding: 0.75rem; background: white; border-radius: 8px; border: 2px solid ' + (result.winner === 'black' ? '#10b981' : '#e5e7eb') + ';">'
+    resultsHTML += '<div style="font-weight: 700; margin-bottom: 0.5rem;">🖤 Hitam (' + result.black.mode + ')</div>'
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Depth: ' + result.black.depth + '</div>'
+    if (result.black.mode === 'hybrid') {
+        resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Rollout: ' + result.black.rollout + '</div>'
+    }
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b; margin-top: 0.5rem;">Avg Time: ' + result.black.avg_time + 's</div>'
+    resultsHTML += '<div style="font-size: 0.875rem; color: #64748b;">Total Time: ' + result.black.total_time + 's</div>'
+    resultsHTML += '</div>'
+    
+    resultsHTML += '</div>'
+    
+    resultsHTML += '<div style="text-align: center; padding: 0.75rem; background: white; border-radius: 8px;">'
+    resultsHTML += '<strong>Total Moves:</strong> ' + result.total_moves + ' | '
+    resultsHTML += '<strong>Result:</strong> ' + statusText
+    resultsHTML += '</div>'
+    
+    resultsHTML += '</div>'
+    
+    // Insert results into page (after controls or in a dedicated section)
+    $('.controls-section').after(resultsHTML)
+    
+    // Scroll to results
+    $('html, body').animate({
+        scrollTop: $('.h2h-results').offset().top - 100
+    }, 500)
+}
+
+// Override start demo button for H2H mode
+var originalStartDemo = null
+
+$(document).ready(function () {
+    // Store original start demo handler
+    originalStartDemo = $('#startDemo').prop('onclick')
+    
+    // Replace with mode-aware handler
+    $('#startDemo').off('click').on('click', function () {
+        if (h2hMode) {
+            playH2HAutoGame()
+        } else {
+            // Call original handler
+            startDemo()
+        }
+    })
+})
+
+function initBoard() {
+    var config = {
+        draggable: true,
+        position: 'start',
+        onDragStart: onDragStart
+    }
+    board = Chessboard('board', config)
+}

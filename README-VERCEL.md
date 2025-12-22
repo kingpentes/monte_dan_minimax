@@ -10,9 +10,10 @@ Deploy ke Vercel: [Link akan tersedia setelah deployment]
 
 - **Pure Minimax**: Algoritma pencarian dengan Alpha-Beta Pruning
 - **Hybrid Mode**: Kombinasi Minimax dengan Monte Carlo evaluation
+- **Head-to-Head Mode**: AI vs AI - Bandingkan algoritma tanpa Stockfish!
 - **Interactive Board**: Interface drag-and-drop untuk bermain catur
 - **Game History**: Lihat riwayat permainan yang telah dimainkan
-- **Move Analysis**: Analisis kualitas langkah (jika Stockfish tersedia)
+- **Auto-Play**: Tonton AI bermain melawan AI secara otomatis
 
 ## 📦 Tech Stack
 

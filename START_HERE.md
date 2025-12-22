@@ -85,6 +85,7 @@ Buka: http://localhost:5000
 ### ✅ Fitur yang Berfungsi di Vercel:
 - Pure Minimax Algorithm
 - Hybrid Algorithm (Minimax + Monte Carlo)
+- **Head-to-Head Mode** (AI vs AI) - Alternatif untuk Stockfish!
 - Interactive chess board
 - Game history & logging
 - Full web interface

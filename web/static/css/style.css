@@ -1092,3 +1092,54 @@ h1 {
 #chartsCollapse .stats-toggle:hover {
     background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
 }
+
+/* Head-to-Head Styles */
+.h2h-players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.h2h-player-config {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+}
+
+.h2h-player-config h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.h2h-player-config .player-config {
+    margin-bottom: 1rem;
+}
+
+.h2h-player-config label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.h2h-player-config .depth-input {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .h2h-players {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hidden {
+    display: none !important;
+}

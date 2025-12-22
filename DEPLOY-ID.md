@@ -78,6 +78,7 @@ File-file berikut sudah dibuat dan dikonfigurasi:
 ✅ **Berjalan di Vercel:**
 - Pure Minimax Algorithm
 - Hybrid Algorithm (Minimax + Monte Carlo)
+- **Head-to-Head Mode (AI vs AI)** - Pengganti Stockfish comparison!
 - Web interface untuk bermain catur
 - Game logging dan history
 - Responsive design

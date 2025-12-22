@@ -4,6 +4,7 @@ import chess
 import chess.engine
 import json
 import uuid
+import time
 from datetime import datetime
 
 # Add engine directory to path
@@ -262,6 +263,223 @@ def stockfish_move():
             return jsonify(response)
         else:
             return jsonify({'error': 'No move found'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# === Head-to-Head Game Endpoints ===
+
+@app.route('/h2h/start', methods=['POST'])
+def start_h2h_game():
+    """Start a new head-to-head game between two algorithms."""
+    data = request.json
+    
+    # Configuration for player 1 (white)
+    white_mode = data.get('white_mode', 'minimax')  # 'minimax' or 'hybrid'
+    white_depth = int(data.get('white_depth', 3))
+    white_rollout = int(data.get('white_rollout', 10))
+    
+    # Configuration for player 2 (black)
+    black_mode = data.get('black_mode', 'hybrid')
+    black_depth = int(data.get('black_depth', 3))
+    black_rollout = int(data.get('black_rollout', 10))
+    
+    # Create new game
+    board = chess.Board()
+    game_id = str(uuid.uuid4())[:8]
+    
+    # Store game state (you can use session or in-memory storage)
+    game_state = {
+        'game_id': game_id,
+        'board': board.fen(),
+        'white_mode': white_mode,
+        'white_depth': white_depth,
+        'white_rollout': white_rollout,
+        'black_mode': black_mode,
+        'black_depth': black_depth,
+        'black_rollout': black_rollout,
+        'moves': [],
+        'move_times': {'white': [], 'black': []},
+        'started_at': datetime.now().isoformat()
+    }
+    
+    return jsonify({
+        'success': True,
+        'game_id': game_id,
+        'game_state': game_state
+    })
+
+@app.route('/h2h/move', methods=['POST'])
+def h2h_move():
+    """Execute next move in head-to-head game."""
+    data = request.json
+    fen = data.get('fen')
+    is_white_turn = data.get('is_white_turn', True)
+    
+    # Get configuration for current player
+    if is_white_turn:
+        mode = data.get('white_mode', 'minimax')
+        depth = int(data.get('white_depth', 3))
+        rollout = int(data.get('white_rollout', 10))
+    else:
+        mode = data.get('black_mode', 'hybrid')
+        depth = int(data.get('black_depth', 3))
+        rollout = int(data.get('black_rollout', 10))
+    
+    board = chess.Board(fen)
+    
+    if board.is_game_over():
+        return jsonify({
+            'game_over': True,
+            'result': board.result(),
+            'outcome': str(board.outcome().termination) if board.outcome() else 'unknown'
+        })
+    
+    # Select move based on mode
+    use_mc = (mode == 'hybrid')
+    
+    # Optimize for timeout prevention
+    if use_mc:
+        depth = min(depth, 2)
+        rollout_count = rollout
+    else:
+        rollout_count = 30
+    
+    start_time = time.time()
+    best_move = select_best_move(board, depth=depth, use_mc=use_mc, rollout_count=rollout_count)
+    move_time = time.time() - start_time
+    
+    if best_move:
+        uci = best_move.uci()
+        response = {
+            'move': uci,
+            'from': uci[:2],
+            'to': uci[2:4],
+            'promotion': uci[4:] if len(uci) > 4 else '',
+            'move_time': round(move_time, 3),
+            'mode': mode,
+            'depth': depth,
+            'rollout': rollout_count if use_mc else 0
+        }
+        return jsonify(response)
+    else:
+        return jsonify({'error': 'No move found'})
+
+@app.route('/h2h/auto_play', methods=['POST'])
+def h2h_auto_play():
+    """Play entire game automatically and return result."""
+    data = request.json
+    
+    # Configuration for both players
+    white_mode = data.get('white_mode', 'minimax')
+    white_depth = int(data.get('white_depth', 3))
+    white_rollout = int(data.get('white_rollout', 10))
+    
+    black_mode = data.get('black_mode', 'hybrid')
+    black_depth = int(data.get('black_depth', 3))
+    black_rollout = int(data.get('black_rollout', 10))
+    
+    board = chess.Board()
+    moves_history = []
+    white_times = []
+    black_times = []
+    
+    max_moves = 200  # Prevent infinite games
+    move_count = 0
+    
+    try:
+        while not board.is_game_over() and move_count < max_moves:
+            is_white_turn = board.turn == chess.WHITE
+            
+            if is_white_turn:
+                mode = white_mode
+                depth = min(white_depth, 2) if mode == 'hybrid' else white_depth
+                rollout = white_rollout
+            else:
+                mode = black_mode
+                depth = min(black_depth, 2) if mode == 'hybrid' else black_depth
+                rollout = black_rollout
+            
+            use_mc = (mode == 'hybrid')
+            
+            start_time = time.time()
+            move = select_best_move(board, depth=depth, use_mc=use_mc, rollout_count=rollout)
+            move_time = time.time() - start_time
+            
+            if move is None:
+                break
+            
+            moves_history.append({
+                'move': move.uci(),
+                'mode': mode,
+                'time': round(move_time, 3),
+                'fen_after': None  # Will be set after push
+            })
+            
+            board.push(move)
+            moves_history[-1]['fen_after'] = board.fen()
+            
+            if is_white_turn:
+                white_times.append(move_time)
+            else:
+                black_times.append(move_time)
+            
+            move_count += 1
+        
+        # Determine result
+        outcome = board.outcome()
+        if outcome:
+            if outcome.winner == chess.WHITE:
+                winner = 'white'
+            elif outcome.winner == chess.BLACK:
+                winner = 'black'
+            else:
+                winner = 'draw'
+            termination = str(outcome.termination)
+        else:
+            winner = 'draw'
+            termination = 'max_moves_reached'
+        
+        # Calculate statistics
+        game_result = {
+            'winner': winner,
+            'termination': termination,
+            'total_moves': move_count,
+            'final_fen': board.fen(),
+            'moves': moves_history,
+            'white': {
+                'mode': white_mode,
+                'depth': white_depth,
+                'rollout': white_rollout,
+                'avg_time': round(sum(white_times) / len(white_times), 3) if white_times else 0,
+                'total_time': round(sum(white_times), 3)
+            },
+            'black': {
+                'mode': black_mode,
+                'depth': black_depth,
+                'rollout': black_rollout,
+                'avg_time': round(sum(black_times) / len(black_times), 3) if black_times else 0,
+                'total_time': round(sum(black_times), 3)
+            }
+        }
+        
+        # Save game log
+        game_data = {
+            'game_id': str(uuid.uuid4())[:8],
+            'timestamp': datetime.now().isoformat(),
+            'game_type': 'head_to_head',
+            'white_algorithm': f"{white_mode} (depth={white_depth})",
+            'black_algorithm': f"{black_mode} (depth={black_depth})",
+            'result': game_result,
+            'moves': moves_history
+        }
+        
+        GameLogger.save_game_log(game_data)
+        
+        return jsonify({
+            'success': True,
+            'result': game_result
+        })
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
