@@ -82,8 +82,9 @@ if stockfish_path:
         print(f"✓ Stockfish loaded from: {stockfish_path}")
     except Exception as e:
         print(f"✗ Failed to load Stockfish: {e}")
+        stockfish_engine = None
 else:
-    print("✗ Stockfish not found")
+    print("✗ Stockfish not found (this is normal on serverless platforms like Vercel)")
 
 @app.route('/')
 def index():

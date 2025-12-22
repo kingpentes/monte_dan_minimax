@@ -1,0 +1,137 @@
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│         🚀 DEPLOY CHESS ENGINE KE VERCEL 🚀                │
+│                                                             │
+│              QUICK REFERENCE CARD                           │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+📋 CHECKLIST DEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Semua file konfigurasi sudah dibuat:
+   □ vercel.json
+   □ .vercelignore  
+   □ api/index.py
+   □ .gitignore
+   □ requirements.txt
+
+✅ Dokumentasi lengkap tersedia:
+   □ START_HERE.md (BACA INI DULU!)
+   □ DEPLOY-ID.md (Bahasa Indonesia)
+   □ DEPLOY.md (Technical)
+
+✅ Helper scripts siap digunakan:
+   □ check_deployment.py
+   □ run_local.bat
+   □ deploy_to_github.bat
+
+
+🎯 CARA DEPLOY (3 LANGKAH)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣ CHECK READINESS
+   
+   python check_deployment.py
+   
+   → Harus semua ✅ PASS!
+
+
+2️⃣ PUSH KE GITHUB
+
+   # Otomatis (Windows):
+   deploy_to_github.bat
+   
+   # Manual:
+   git add .
+   git commit -m "Ready for Vercel"
+   git push
+
+
+3️⃣ DEPLOY DI VERCEL
+
+   🌐 Buka: https://vercel.com
+   
+   → Login dengan GitHub
+   → Klik "Add New" → "Project"  
+   → Pilih repository ini
+   → Klik "Import"
+   → Klik "Deploy"
+   
+   ⏱️ Tunggu 1-2 menit... DONE! 🎉
+
+
+💻 TEST LOKAL (OPSIONAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Windows
+run_local.bat
+
+# Manual
+python web/app.py
+
+🌐 Buka: http://localhost:5000
+
+
+⚙️ FITUR DI VERCEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ AVAILABLE:
+   • Pure Minimax Algorithm
+   • Hybrid Algorithm (Minimax + Monte Carlo)
+   • Interactive web interface
+   • Game history & logging
+   • Full chess gameplay
+
+❌ NOT AVAILABLE:
+   • Stockfish engine (needs binary)
+   • Move quality analysis
+   • Stockfish comparison mode
+
+
+🐛 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: Build Failed
+→ Check logs in Vercel dashboard
+→ Verify requirements.txt
+→ Try: vercel --prod --force
+
+Problem: Timeout (504)
+→ Reduce depth (max 2-3)
+→ Use Pure Minimax mode
+→ Reduce rollout count
+
+Problem: Import Error
+→ Check api/index.py paths
+→ Verify all dependencies in requirements.txt
+→ Re-deploy
+
+
+📞 NEED HELP?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 Dokumentasi Lengkap:
+   • START_HERE.md (Mulai dari sini!)
+   • DEPLOY-ID.md (Panduan Indonesia)
+   • DEPLOY.md (Technical guide)
+
+🔗 Resources:
+   • Vercel Docs: https://vercel.com/docs
+   • Python-Chess: https://python-chess.readthedocs.io
+
+⌨️ Quick Commands:
+   python check_deployment.py  → Check readiness
+   run_local.bat              → Test locally
+   deploy_to_github.bat       → Commit & push
+   vercel --prod              → Deploy with CLI
+
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│              🎊 GOOD LUCK & HAPPY CODING! 🎊               │
+│                                                             │
+│           Tugas Besar Kecerdasan Artifisial                │
+│                  Kelompok 9 - PKA C                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘

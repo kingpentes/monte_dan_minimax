@@ -1,0 +1,5 @@
+python-chess==1.999
+numpy==1.24.3
+matplotlib==3.7.1
+Flask==2.3.2
+Werkzeug==2.3.6
