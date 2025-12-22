@@ -16,10 +16,6 @@ PIECE_VALUES = {
 }
 
 def evaluate_static(board: chess.Board) -> int:
-    """
-    Calculates the material score of the board.
-    Positive for White advantage, negative for Black advantage.
-    """
     if board.is_game_over():
         if board.is_checkmate():
             return -9999 if board.turn == chess.WHITE else 9999

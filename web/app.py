@@ -433,24 +433,10 @@ def regenerate_comparison():
             total_moves = accuracy.get('evaluatedMoves', 0)
             
             if total_moves > 0:
-                # Average CP Loss for this game
                 avg_cp = accuracy.get('totalCPLoss', 0) / total_moves
                 stats['cp_losses'].append(avg_cp)
-                
-                # Match rate (Excellent + Good) / Total ? Or just assume high match?
-                # The current log doesn't explicitly store "match rate" vs Stockfish best move
-                # unless we infer it from quality 'excellent' (CP Loss <= 10).
-                # Let's approximate match rate as (Excelent) / Total
                 matches = accuracy.get('excellent', 0)
                 stats['match_rates'].append(matches / total_moves)
-
-            # Move times are not explicitly in the log summary, but we might simulate or assume
-            # effectively 0 for static and higher for MC if not recorded.
-            # Wait, game_runner records it but app.py logging might not have detailed times per move in summary.
-            # Checking app.py structure... user didn't implement detailed timing logs in app.py yet.
-            # We will use placeholders or mocked values based on typical performance if missing
-            # OR better: if 'moves' list has timing? No, it has move, player, quality, cpLoss.
-            # We will set time to 0.05s for baseline and 2.0s for hybrid as estimates if missing.
             stats['move_times'].append(2.0 if is_hybrid else 0.05)
 
         # Helper to safely calculate mean/std

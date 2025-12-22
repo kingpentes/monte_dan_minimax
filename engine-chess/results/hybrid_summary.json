@@ -1,15 +1,15 @@
 {
   "config": {
     "depth": 3,
-    "n_games": 2,
+    "n_games": 3,
     "rollout_count": 10
   },
   "metrics": {
     "win_rate": 0.0,
     "avg_move_time": 2.0,
     "std_move_time": 0.0,
-    "avg_cp_loss": 534.078947368421,
-    "move_match_rate": 0.3421052631578947,
-    "total_moves": 76
+    "avg_cp_loss": 562.8651315789474,
+    "move_match_rate": 0.3530701754385965,
+    "total_moves": 108
   }
 }

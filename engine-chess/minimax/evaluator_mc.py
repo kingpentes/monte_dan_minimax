@@ -6,14 +6,6 @@ import chess
 import random
 
 def simulate_random(board: chess.Board, max_steps=20) -> float:
-    """
-    Simulates a random game from the current position up to max_steps.
-    Returns:
-        1.0 if White wins
-        -1.0 if Black wins
-        0.0 for Draw
-        Static evaluation (normalized) if max_steps reached without game over.
-    """
     temp_board = board.copy()
     steps = 0
     
@@ -33,17 +25,9 @@ def simulate_random(board: chess.Board, max_steps=20) -> float:
             return -1.0
         else:
             return 0.0
-            
-    # If not game over, return a small heuristic or 0
-    # For simplicity in this hybrid model, we can return 0 or a very simple material check
-    # But strictly following "Return nilai float -1 sampai 1", 0.0 is safe for unfinished.
     return 0.0
 
 def evaluate_mc(board: chess.Board, rollout_count=30) -> float:
-    """
-    Runs multiple random simulations and returns the average score.
-    Range: -1.0 (Black wins all) to 1.0 (White wins all).
-    """
     total_score = 0.0
     for _ in range(rollout_count):
         total_score += simulate_random(board)

@@ -9,20 +9,6 @@ from minimax.minimax_ab import select_best_move
 from simulation.metrics import measure_move_time
 
 def play_vs_stockfish(stockfish_path, engine_depth, use_mc, rollout_count, engine_color=chess.WHITE, time_limit=0.1):
-    """
-    Plays a single game: Custom Engine vs Stockfish.
-    
-    Args:
-        stockfish_path: Path to Stockfish executable.
-        engine_depth: Depth for custom engine.
-        use_mc: Boolean, use Monte Carlo evaluation.
-        rollout_count: Number of rollouts for MC.
-        engine_color: chess.WHITE or chess.BLACK.
-        time_limit: Time limit for Stockfish per move.
-        
-    Returns:
-        dict: Game result and metrics.
-    """
     board = chess.Board()
     engine_move_times = []
     engine_cp_losses = []
