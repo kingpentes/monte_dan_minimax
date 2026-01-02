@@ -73,17 +73,18 @@ class GameLogger:
         return None
 
 # Initialize Stockfish
-stockfish_path = get_default_stockfish_path()
+# stockfish_path = get_default_stockfish_path()
 stockfish_engine = None
+print("Stockfish disabled for H2H mode.")
 
-if stockfish_path:
-    try:
-        stockfish_engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
-        print(f"✓ Stockfish loaded from: {stockfish_path}")
-    except Exception as e:
-        print(f"✗ Failed to load Stockfish: {e}")
-else:
-    print("✗ Stockfish not found")
+# if stockfish_path:
+#     try:
+#         stockfish_engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
+#         print(f"✓ Stockfish loaded from: {stockfish_path}")
+#     except Exception as e:
+#         print(f"✗ Failed to load Stockfish: {e}")
+# else:
+#     print("✗ Stockfish not found")
 
 @app.route('/')
 def index():

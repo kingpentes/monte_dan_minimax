@@ -74,16 +74,22 @@ function makeAIMove() {
             }
         })
     } else {
+        // H2H Mode: Second player also uses the algorithm (Self-Play)
+        // Or we can just use the SAME /move endpoint but maybe with different parameters if desired.
+        // For now, let's just make it play against itself using standard Minimax.
         $.ajax({
-            url: '/stockfish_move',
+            url: '/move',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
                 fen: game.fen(),
-                time_limit: 0.1,
-                evaluate: true
+                depth: depth, // Same depth for now
+                mode: mode,   // Same mode
+                rollout: rollout,
+                evaluate: false // Disable eval since SF is gone
             }),
             success: function (response) {
+                // Simulate opponent response structure
                 handleMoveResponse(response)
             },
             error: function (error) {
