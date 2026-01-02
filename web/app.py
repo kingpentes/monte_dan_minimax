@@ -495,7 +495,8 @@ def regenerate_comparison():
 
 if __name__ == '__main__':
     try:
-        app.run(debug=True)
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port, debug=False)
     finally:
         if stockfish_engine:
             stockfish_engine.quit()

@@ -21,8 +21,16 @@ def get_default_stockfish_path():
     possible_names = [
         "stockfish-windows-x86-64-avx2.exe",
         "stockfish.exe",
-        "stockfish-windows.exe"
+        "stockfish-windows.exe",
+        "stockfish",  # Linux/Mac
+        "/usr/bin/stockfish", # Linux common path
+        "/usr/local/bin/stockfish"
     ]
+    
+    # Check system PATH
+    import shutil
+    if shutil.which("stockfish"):
+        return shutil.which("stockfish")
     
     for name in possible_names:
         path = os.path.join(stockfish_dir, name)
