@@ -25,7 +25,9 @@ def get_default_stockfish_path():
         return shutil.which("stockfish")
 
     # Determine OS-specific binary names
-    if sys.platform.startswith('win'):
+    is_windows = sys.platform.startswith('win')
+    
+    if is_windows:
         possible_names = [
             "stockfish-windows-x86-64-avx2.exe",
             "stockfish.exe",
@@ -37,19 +39,36 @@ def get_default_stockfish_path():
             "stockfish",
             "stockfish-ubuntu-x86-64-avx2",
             "stockfish-ubuntu-x86-64-modern",
-            "stockfish_15_x64_avx2.bin" # Common variants
+            "stockfish_15_x64_avx2.bin" 
         ]
         
     # Check explicitly defined system paths (fallback for Linux)
-    if not sys.platform.startswith('win'):
+    if not is_windows:
         system_paths = [
             "/usr/bin/stockfish",
             "/usr/local/bin/stockfish",
-            "/app/.nix-profile/bin/stockfish" # Nixpacks specific
+            "/app/.nix-profile/bin/stockfish",
+            "/nix/var/nix/profiles/default/bin/stockfish",
+            "/run/current-system/sw/bin/stockfish"
         ]
         for path in system_paths:
             if os.path.exists(path):
+                print(f"Found system Stockfish at: {path}") # Debug log
                 return path
+    
+    for name in possible_names:
+        path = os.path.join(stockfish_dir, name)
+        if os.path.exists(path):
+            # On Linux, try to ensure it's executable
+            if not is_windows:
+                try:
+                    import stat
+                    st = os.stat(path)
+                    os.chmod(path, st.st_mode | stat.S_IEXEC)
+                    print(f"Attempted to make {path} executable.")
+                except Exception as e:
+                    print(f"Failed to change permissions for {path}: {e}")
+            return path
     
     for name in possible_names:
         path = os.path.join(stockfish_dir, name)
