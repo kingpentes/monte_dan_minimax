@@ -17,20 +17,39 @@ def get_default_stockfish_path():
     script_dir = os.path.dirname(__file__)
     stockfish_dir = os.path.join(script_dir, "stockfish")
     
-    # Common Stockfish executable names
-    possible_names = [
-        "stockfish-windows-x86-64-avx2.exe",
-        "stockfish.exe",
-        "stockfish-windows.exe",
-        "stockfish",  # Linux/Mac
-        "/usr/bin/stockfish", # Linux common path
-        "/usr/local/bin/stockfish"
-    ]
+    import sys
     
-    # Check system PATH
+    # Check system PATH first
     import shutil
     if shutil.which("stockfish"):
         return shutil.which("stockfish")
+
+    # Determine OS-specific binary names
+    if sys.platform.startswith('win'):
+        possible_names = [
+            "stockfish-windows-x86-64-avx2.exe",
+            "stockfish.exe",
+            "stockfish-windows.exe"
+        ]
+    else:
+        # Linux/Mac
+        possible_names = [
+            "stockfish",
+            "stockfish-ubuntu-x86-64-avx2",
+            "stockfish-ubuntu-x86-64-modern",
+            "stockfish_15_x64_avx2.bin" # Common variants
+        ]
+        
+    # Check explicitly defined system paths (fallback for Linux)
+    if not sys.platform.startswith('win'):
+        system_paths = [
+            "/usr/bin/stockfish",
+            "/usr/local/bin/stockfish",
+            "/app/.nix-profile/bin/stockfish" # Nixpacks specific
+        ]
+        for path in system_paths:
+            if os.path.exists(path):
+                return path
     
     for name in possible_names:
         path = os.path.join(stockfish_dir, name)
