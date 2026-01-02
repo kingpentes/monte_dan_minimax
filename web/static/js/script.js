@@ -15,22 +15,10 @@ var batchResults = {
     shortestGame: 999,
     startTime: null,
     accuracy: {
-        excellent: 0,
-        good: 0,
-        inaccuracy: 0,
-        mistake: 0,
-        blunder: 0,
-        totalCPLoss: 0,
-        evaluatedMoves: 0
+        // Disabled
     },
     stockfishAccuracy: {
-        excellent: 0,
-        good: 0,
-        inaccuracy: 0,
-        mistake: 0,
-        blunder: 0,
-        totalCPLoss: 0,
-        evaluatedMoves: 0
+        // Disabled
     }
 }
 var currentBatchGame = 0
@@ -143,8 +131,8 @@ function handleMoveResponse(response) {
             number: currentGameMoves,
             move: response.move,
             player: isAlgorithmMove ? 'algorithm' : 'stockfish',
-            quality: response.evaluation ? response.evaluation.quality : null,
-            cpLoss: response.evaluation ? response.evaluation.cp_loss : null
+            quality: null,
+            cpLoss: null
         })
 
         // Update move history UI
@@ -228,7 +216,7 @@ function showFinalResults() {
         if (batchResults.algorithmWins > 0) {
             result = '🎉 Algoritma Anda Menang dengan Skakmat!'
         } else if (batchResults.stockfishWins > 0) {
-            result = '😔 Stockfish Menang dengan Skakmat'
+            result = '😔 Lawan Menang dengan Skakmat'
         } else {
             result = '🤝 Permainan Seri'
         }
@@ -243,32 +231,7 @@ function showFinalResults() {
         (batchResults.stockfishAccuracy.totalCPLoss / batchResults.stockfishAccuracy.evaluatedMoves) : 0
 
     // Calculate Accuracy % using Chess.com formula: Accuracy = max(0, 100 - (ACPL / 10))
-    var algorithmAccuracy = Math.max(0, 100 - (algoACPL / 10)).toFixed(1)
-    var stockfishAccuracy = Math.max(0, 100 - (stockfishACPL / 10)).toFixed(1)
-
-    // Always show statistics (for both single and batch games)
-    var avgMoves = batchResults.total > 0 ? (batchResults.totalMoves / batchResults.total).toFixed(1) : 0
-    var avgCPLoss = algoACPL.toFixed(1)
-
-    $('#totalGames').text(batchResults.total)
-    $('#algorithmAccuracy').text(algorithmAccuracy + '%')
-    $('#stockfishAccuracy').text(stockfishAccuracy + '%')
-    $('#algorithmWins').text(batchResults.algorithmWins)
-    $('#stockfishWins').text(batchResults.stockfishWins)
-    $('#draws').text(batchResults.draws)
-    $('#avgMoves').text(avgMoves)
-    $('#totalMoves').text(batchResults.totalMoves + ' gerakan')
-    $('#totalTime').text(elapsedTime + ' detik')
-    $('#longestGame').text(batchResults.longestGame + ' gerakan')
-    $('#shortestGame').text(batchResults.shortestGame === 999 ? '0' : batchResults.shortestGame + ' gerakan')
-
-    // Accuracy statistics (Algorithm only)
-    $('#excellentMoves').text(batchResults.accuracy.excellent)
-    $('#goodMoves').text(batchResults.accuracy.good)
-    $('#inaccuracyMoves').text(batchResults.accuracy.inaccuracy)
-    $('#mistakeMoves').text(batchResults.accuracy.mistake)
-    $('#blunderMoves').text(batchResults.accuracy.blunder)
-    $('#avgCPLoss').text(avgCPLoss)
+    // Accuracy display removed
 
     // Show and expand stats collapse
     $('#statsCollapse').removeClass('hidden').addClass('expanded')
@@ -306,7 +269,7 @@ function updateStatus() {
             var algo = $('#algorithmSelect option:selected').text()
             status = 'Giliran Algoritma (' + algo + ')'
         } else {
-            status = 'Giliran Stockfish'
+            status = 'Giliran Lawan'
         }
 
         if (game.in_check()) {
@@ -341,7 +304,7 @@ function updateGameStatus(status, currentTurn) {
             if (algorithmColor === 'white') {
                 $text.text('Giliran Algoritma (Putih)')
             } else {
-                $text.text('Giliran Stockfish (Putih)')
+                $text.text('Giliran Lawan (Putih)')
             }
         } else {
             $whitePiece.addClass('hidden')
@@ -351,7 +314,7 @@ function updateGameStatus(status, currentTurn) {
             if (algorithmColor === 'black') {
                 $text.text('Giliran Algoritma (Hitam)')
             } else {
-                $text.text('Giliran Stockfish (Hitam)')
+                $text.text('Giliran Lawan (Hitam)')
             }
         }
     } else if (status === 'finished') {
@@ -797,9 +760,7 @@ function saveGameLog() {
         algorithmWins: batchResults.algorithmWins,
         stockfishWins: batchResults.stockfishWins,
         draws: batchResults.draws,
-        totalMoves: batchResults.totalMoves,
-        accuracy: batchResults.accuracy,
-        stockfishAccuracy: batchResults.stockfishAccuracy
+        totalMoves: batchResults.totalMoves
     }
 
     $.ajax({

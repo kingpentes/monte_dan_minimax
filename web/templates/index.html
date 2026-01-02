@@ -43,21 +43,7 @@
                             </div>
                         </div>
 
-                        <div class="summary-card win">
-                            <div class="summary-icon">🎯</div>
-                            <div class="summary-content">
-                                <span class="summary-label">Akurasi Algoritma</span>
-                                <span class="summary-value" id="algorithmAccuracy">0%</span>
-                            </div>
-                        </div>
-
-                        <div class="summary-card loss">
-                            <div class="summary-icon">⚡</div>
-                            <div class="summary-content">
-                                <span class="summary-label">Akurasi Stockfish</span>
-                                <span class="summary-value" id="stockfishAccuracy">0%</span>
-                            </div>
-                        </div>
+                        <!-- Removed Accuracy Cards -->
                     </div>
 
                     <div class="results-grid">
@@ -66,7 +52,7 @@
                             <span class="result-value win" id="algorithmWins">0</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">❌ Stockfish Menang:</span>
+                            <span class="result-label">❌ Lawan Menang:</span>
                             <span class="result-value loss" id="stockfishWins">0</span>
                         </div>
                         <div class="result-item">
@@ -113,53 +99,7 @@
                         </div>
                     </div>
 
-                    <div class="accuracy-section">
-                        <h5>📊 Akurasi Gerakan Algoritma</h5>
-                        <div class="accuracy-grid">
-                            <div class="accuracy-item excellent">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">⭐</span>
-                                    <span>Excellent</span>
-                                </div>
-                                <span class="accuracy-count" id="excellentMoves">0</span>
-                            </div>
-                            <div class="accuracy-item good">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">✅</span>
-                                    <span>Good</span>
-                                </div>
-                                <span class="accuracy-count" id="goodMoves">0</span>
-                            </div>
-                            <div class="accuracy-item inaccuracy">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">⚠️</span>
-                                    <span>Inaccuracy</span>
-                                </div>
-                                <span class="accuracy-count" id="inaccuracyMoves">0</span>
-                            </div>
-                            <div class="accuracy-item mistake">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">❌</span>
-                                    <span>Mistake</span>
-                                </div>
-                                <span class="accuracy-count" id="mistakeMoves">0</span>
-                            </div>
-                            <div class="accuracy-item blunder">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">💥</span>
-                                    <span>Blunder</span>
-                                </div>
-                                <span class="accuracy-count" id="blunderMoves">0</span>
-                            </div>
-                            <div class="accuracy-item average">
-                                <div class="accuracy-label">
-                                    <span class="accuracy-icon">📊</span>
-                                    <span>Avg CP Loss</span>
-                                </div>
-                                <span class="accuracy-count" id="avgCPLoss">0</span>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Accuracy Section Removed -->
                 </div>
             </div>
 
@@ -323,7 +263,7 @@
                             <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#10b981" />
                             <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#10b981" />
                         </svg>
-                        <span><strong>Lawan:</strong> Stockfish Engine</span>
+                        <span><strong>Lawan:</strong> Algoritma (Self-Play)</span>
                     </div>
 
                     <div class="depth-config">

@@ -320,7 +320,7 @@ def generate_charts():
         
         data = request.json
         
-        # Generate Move Quality Chart (Pie Chart)
+        # Generate Move Quality Chart (Pie Chart) -- SKIPPED IF NO DATA
         quality_data = data.get('accuracy', {})
         labels = ['Excellent', 'Good', 'Inaccuracy', 'Mistake', 'Blunder']
         sizes = [
@@ -352,26 +352,29 @@ def generate_charts():
         plt.bar(metrics, values, color=colors)
         plt.title('Hasil Permainan')
         plt.ylabel('Jumlah')
+        # Annotate renaming in chart if needed, but labels are generic enough
         plt.savefig(os.path.join(CHARTS_DIR, 'game_results.png'), dpi=100, bbox_inches='tight')
         plt.close()
         
-        # Generate Accuracy Comparison Chart
-        plt.figure(figsize=(8, 6))
-        players = ['Algoritma', 'Stockfish']
+        # Generate Accuracy Comparison Chart -- SKIPPED IF NO DATA
         algo_acpl = quality_data.get('totalCPLoss', 0) / max(quality_data.get('evaluatedMoves', 1), 1)
         sf_accuracy = data.get('stockfishAccuracy', {})
         sf_acpl = sf_accuracy.get('totalCPLoss', 0) / max(sf_accuracy.get('evaluatedMoves', 1), 1)
-        accuracies = [
-            max(0, 100 - (algo_acpl / 10)),
-            max(0, 100 - (sf_acpl / 10))
-        ]
-        colors = ['#2196F3', '#4CAF50']
-        plt.bar(players, accuracies, color=colors)
-        plt.title('Perbandingan Akurasi')
-        plt.ylabel('Akurasi (%)')
-        plt.ylim(0, 100)
-        plt.savefig(os.path.join(CHARTS_DIR, 'accuracy_comparison.png'), dpi=100, bbox_inches='tight')
-        plt.close()
+        
+        if algo_acpl > 0 or sf_acpl > 0:
+            plt.figure(figsize=(8, 6))
+            players = ['Algoritma', 'Lawan']
+            accuracies = [
+                max(0, 100 - (algo_acpl / 10)),
+                max(0, 100 - (sf_acpl / 10))
+            ]
+            colors = ['#2196F3', '#4CAF50']
+            plt.bar(players, accuracies, color=colors)
+            plt.title('Perbandingan Akurasi')
+            plt.ylabel('Akurasi (%)')
+            plt.ylim(0, 100)
+            plt.savefig(os.path.join(CHARTS_DIR, 'accuracy_comparison.png'), dpi=100, bbox_inches='tight')
+            plt.close()
         
         return jsonify({'success': True, 'charts': ['move_quality.png', 'game_results.png', 'accuracy_comparison.png']})
     except Exception as e:
