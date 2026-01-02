@@ -35,65 +35,44 @@ function makeAIMove() {
 
     $thinking.removeClass('hidden')
 
-    var depth = $('#depth').val()
-    var rollout = $('#rollout').val()
-    var algorithmColor = $('#colorSelect').val()
-    var currentTurn = game.turn() === 'w' ? 'white' : 'black'
+    // Determine settings based on turn
+    var isWhiteTurn = game.turn() === 'w'
 
-    if (currentTurn === algorithmColor) {
-        var mode = $('#algorithmSelect').val()
+    var algorithm = isWhiteTurn ? $('#whiteAlgorithm').val() : $('#blackAlgorithm').val()
+    var depth = isWhiteTurn ? $('#whiteDepth').val() : $('#blackDepth').val()
+    var rollout = isWhiteTurn ? $('#whiteRollout').val() : $('#blackRollout').val()
 
-        $.ajax({
-            url: '/move',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                fen: game.fen(),
-                depth: depth,
-                mode: mode,
-                rollout: rollout,
-                evaluate: true
-            }),
-            success: function (response) {
-                handleMoveResponse(response)
-            },
-            error: function (error) {
-                handleError(error)
-            }
-        })
-    } else {
-        // H2H Mode: Second player also uses the algorithm (Self-Play)
-        // Or we can just use the SAME /move endpoint but maybe with different parameters if desired.
-        // For now, let's just make it play against itself using standard Minimax.
-        $.ajax({
-            url: '/move',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                fen: game.fen(),
-                depth: depth, // Same depth for now
-                mode: mode,   // Same mode
-                rollout: rollout,
-                evaluate: false // Disable eval since SF is gone
-            }),
-            success: function (response) {
-                // Simulate opponent response structure
-                handleMoveResponse(response)
-            },
-            error: function (error) {
-                handleError(error)
-            }
-        })
-    }
+    // Unified move request (Self-Play / Algo vs Algo)
+    $.ajax({
+        url: '/move',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            fen: game.fen(),
+            depth: depth,
+            mode: algorithm,
+            rollout: rollout,
+            evaluate: false
+        }),
+        success: function (response) {
+            handleMoveResponse(response)
+        },
+        error: function (error) {
+            handleError(error)
+        }
+    })
 }
 
 function handleMoveResponse(response) {
     $thinking.addClass('hidden')
 
     if (response.move) {
-        var algorithmColor = $('#colorSelect').val()
         var currentTurn = game.turn() === 'w' ? 'white' : 'black'
-        var isAlgorithmMove = (currentTurn === algorithmColor)
+        var playerLabel = currentTurn === 'white' ? 'Putih' : 'Hitam'
+        var algoName = currentTurn === 'white' ? $('#whiteAlgorithm option:selected').text() : $('#blackAlgorithm option:selected').text()
+
+        // No longer distinguishing 'isAlgorithmMove' vs 'stockfish' since both are configured algorithms
+        // We will label them as 'white' and 'black' in history
 
         game.move({
             from: response.from,
@@ -129,8 +108,15 @@ function handleMoveResponse(response) {
         // Add to move history for display
         moveHistory.push({
             number: currentGameMoves,
-            move: response.move,
-            player: isAlgorithmMove ? 'algorithm' : 'stockfish',
+            move: (currentGameMoves % 2 === 1 ? Math.ceil(currentGameMoves / 2) + "." : "") + " " + response.move, // Simplified generic labeling logic not ideally placed here but UI handles it
+            // Better structure:
+            turnNumber: Math.ceil(currentGameMoves / 2),
+            color: currentTurn,
+            moveStr: response.move,
+
+            player: currentTurn, // 'white' or 'black'
+            algo: algoName,
+
             quality: null,
             cpLoss: null
         })
@@ -165,7 +151,6 @@ function handleError(error) {
 }
 
 function handleGameEnd() {
-    var algorithmColor = $('#colorSelect').val()
     var winner = null
 
     if (game.in_checkmate()) {
@@ -182,10 +167,10 @@ function handleGameEnd() {
         batchResults.shortestGame = currentGameMoves
     }
 
-    if (winner === algorithmColor) {
-        batchResults.algorithmWins++
-    } else if (winner && winner !== algorithmColor) {
-        batchResults.stockfishWins++
+    if (winner === 'white') {
+        batchResults.algorithmWins++ // Reusing 'algorithmWins' for White Wins
+    } else if (winner === 'black') {
+        batchResults.stockfishWins++ // Reusing 'stockfishWins' for Black Wins
     } else {
         batchResults.draws++
     }
@@ -214,9 +199,9 @@ function showFinalResults() {
 
     if (totalBatchGames === 1) {
         if (batchResults.algorithmWins > 0) {
-            result = '🎉 Algoritma Anda Menang dengan Skakmat!'
+            result = '🏳️ Pemain Putih Menang!'
         } else if (batchResults.stockfishWins > 0) {
-            result = '😔 Lawan Menang dengan Skakmat'
+            result = '🏴 Pemain Hitam Menang!'
         } else {
             result = '🤝 Permainan Seri'
         }
@@ -265,12 +250,9 @@ function updateStatus() {
         status = '🤝 Permainan selesai - posisi seri'
     }
     else {
-        if (currentTurn === algorithmColor) {
-            var algo = $('#algorithmSelect option:selected').text()
-            status = 'Giliran Algoritma (' + algo + ')'
-        } else {
-            status = 'Giliran Lawan'
-        }
+        var algoName = currentTurn === 'white' ? $('#whiteAlgorithm option:selected').text() : $('#blackAlgorithm option:selected').text()
+        var teamName = currentTurn === 'white' ? 'Putih' : 'Hitam'
+        status = 'Giliran ' + teamName + ' (' + algoName + ')'
 
         if (game.in_check()) {
             status += ' - ⚠️ Skak!'
@@ -300,22 +282,14 @@ function updateGameStatus(status, currentTurn) {
             $whitePiece.removeClass('hidden')
             $blackPiece.addClass('hidden')
 
-            var algorithmColor = $('#colorSelect').val()
-            if (algorithmColor === 'white') {
-                $text.text('Giliran Algoritma (Putih)')
-            } else {
-                $text.text('Giliran Lawan (Putih)')
-            }
+            var algo = $('#whiteAlgorithm option:selected').text()
+            $text.text('Giliran Putih (' + algo + ')')
         } else {
             $whitePiece.addClass('hidden')
             $blackPiece.removeClass('hidden')
 
-            var algorithmColor = $('#colorSelect').val()
-            if (algorithmColor === 'black') {
-                $text.text('Giliran Algoritma (Hitam)')
-            } else {
-                $text.text('Giliran Lawan (Hitam)')
-            }
+            var algo = $('#blackAlgorithm option:selected').text()
+            $text.text('Giliran Hitam (' + algo + ')')
         }
     } else if (status === 'finished') {
         $badge.addClass('finished')
@@ -326,41 +300,35 @@ function updateGameStatus(status, currentTurn) {
 }
 
 function lockParameters(lock) {
-    $('#algorithmSelect').prop('disabled', lock)
-    $('#colorSelect').prop('disabled', lock)
-    $('#depth').prop('disabled', lock)
+    $('#whiteAlgorithm, #blackAlgorithm').prop('disabled', lock)
+    $('#whiteDepth, #blackDepth').prop('disabled', lock)
     $('#gameCount').prop('disabled', lock)
 
-    if (lock || $('#algorithmSelect').val() !== 'hybrid') {
-        $('#rollout').prop('disabled', true)
-    } else {
-        $('#rollout').prop('disabled', false)
-    }
+    toggleRolloutInput() // Refresh disabled state based on algo selection
 
     if (lock) {
+        // Force disable rollouts if locked
+        $('#whiteRollout, #blackRollout').prop('disabled', true)
+
         $('.config-section').css('opacity', '0.6')
         $('.batch-config').css('opacity', '0.6')
     } else {
+        // Re-enable rollouts only if their respective algo is hybrid
+        toggleRolloutInput()
+
         $('.config-section').css('opacity', '1')
         $('.batch-config').css('opacity', '1')
     }
 }
 
 function toggleRolloutInput() {
-    var algorithm = $('#algorithmSelect').val()
-    var $rolloutInput = $('#rollout')
+    if (isDemoRunning) return
 
-    if (isDemoRunning) {
-        return
-    }
+    var whiteAlgo = $('#whiteAlgorithm').val()
+    var blackAlgo = $('#blackAlgorithm').val()
 
-    if (algorithm === 'hybrid') {
-        $rolloutInput.prop('disabled', false)
-        $rolloutInput.parent().parent().css('opacity', '1')
-    } else {
-        $rolloutInput.prop('disabled', true)
-        $rolloutInput.parent().parent().css('opacity', '0.5')
-    }
+    $('#whiteRollout').prop('disabled', whiteAlgo !== 'hybrid')
+    $('#blackRollout').prop('disabled', blackAlgo !== 'hybrid')
 }
 
 var config = {
@@ -376,7 +344,7 @@ updateStatus()
 toggleRolloutInput()
 updateGameStatus('ready')
 
-$('#algorithmSelect').on('change', toggleRolloutInput)
+$('#whiteAlgorithm, #blackAlgorithm').on('change', toggleRolloutInput)
 
 $('#newGameBtn').on('click', function () {
     isDemoRunning = false
@@ -711,9 +679,9 @@ function updateMoveHistoryUI() {
         var qualityClass = lastMove.quality ? lastMove.quality : ''
         var qualityIcon = getQualityIcon(lastMove.quality)
 
-        var $item = $('<div class="move-item ' + lastMove.player + '">' +
-            '<span class="move-number">' + lastMove.number + '.</span>' +
-            '<span class="move-notation">' + lastMove.move + '</span>' +
+        var $item = $('<div class="move-item ' + lastMove.color + '">' +
+            '<span class="move-number">' + lastMove.turnNumber + '.</span>' +
+            '<span class="move-notation">' + lastMove.moveStr + '</span>' +
             '<span class="move-quality ' + qualityClass + '">' + qualityIcon + '</span>' +
             '</div>')
 
@@ -739,7 +707,9 @@ function getQualityIcon(quality) {
 }
 
 function saveGameLog() {
-    var algorithm = $('#algorithmSelect option:selected').text()
+    var whiteAlgo = $('#whiteAlgorithm option:selected').text()
+    var blackAlgo = $('#blackAlgorithm option:selected').text()
+    var algorithm = "White: " + whiteAlgo + " vs Black: " + blackAlgo
     var depth = $('#depth').val()
     var result = ''
 
